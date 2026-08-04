@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "id": "nexui",
+  "version": "${version}",
+  "name": "NexUI - Interface Studio",
+  "description": "Modern, modular, Figma-like Minecraft client-side interface customization studio.",
+  "authors": [
+    "NexUI Studio Team"
+  ],
+  "contact": {
+    "homepage": "https://github.com/nexui/nexui",
+    "sources": "https://github.com/nexui/nexui"
+  },
+  "license": "MIT",
+  "icon": "assets/nexui/icon.png",
+  "environment": "client",
+  "entrypoints": {
+    "client": [
+      "com.nexui.NexUIClient"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=0.19.3",
+    "minecraft": "~26.2",
+    "java": ">=25",
+    "fabric-api": "*"
+  }
+}
