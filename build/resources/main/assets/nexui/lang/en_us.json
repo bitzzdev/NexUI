@@ -1,0 +1,15 @@
+{
+  "category.nexui.title": "NexUI Studio",
+  "key.nexui.toggle_design_mode": "Open NexUI Design Studio",
+  "nexui.design_mode.title": "NexUI Design Studio",
+  "nexui.theme.vanilla": "Vanilla",
+  "nexui.theme.minimal": "Minimalist",
+  "nexui.theme.modern": "Modern Studio",
+  "nexui.theme.amoled": "AMOLED Pitch Dark",
+  "nexui.theme.glass": "Frosted Glassmorphism",
+  "nexui.theme.rpg": "RPG Fantasy",
+  "nexui.theme.neon": "Synthwave Neon",
+  "nexui.theme.cyber": "Cyberpunk 2077",
+  "nexui.theme.pvp": "Competitive PvP",
+  "nexui.theme.streamer": "Streamer Broadcast"
+}
