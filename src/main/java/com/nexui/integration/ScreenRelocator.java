@@ -1,5 +1,9 @@
 package com.nexui.integration;
 
+import com.nexui.model.LayoutProfile;
+import com.nexui.model.Rect2i;
+import com.nexui.model.UIComponent;
+import com.nexui.registry.ProfileRegistry;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.AbstractFurnaceScreen;
 import net.minecraft.client.gui.screens.inventory.AnvilScreen;
@@ -64,5 +68,29 @@ public final class ScreenRelocator {
             }
         }
         return null;
+    }
+
+    /**
+     * Returns the absolute position a screen should be placed at, or {@code null}
+     * when the screen has no moved NexUI component (in which case it keeps the
+     * vanilla centered position). Only a component that differs from its default
+     * bounds counts as moved.
+     */
+    public static Rect2i getRelocationTarget(AbstractContainerScreen<?> screen) {
+        String componentId = getComponentId(screen);
+        if (componentId == null) {
+            return null;
+        }
+        LayoutProfile profile = ProfileRegistry.getInstance().getActiveProfile();
+        UIComponent component = profile == null ? null : profile.getComponent(componentId);
+        if (component == null) {
+            return null;
+        }
+        Rect2i def = component.getDefaultBounds();
+        Rect2i cur = component.getCurrentBounds();
+        if (cur.x() == def.x() && cur.y() == def.y()) {
+            return null;
+        }
+        return cur;
     }
 }

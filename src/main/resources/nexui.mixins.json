@@ -3,7 +3,17 @@
   "package": "com.nexui.mixin",
   "compatibilityLevel": "JAVA_25",
   "client": [
-    "ScreenRelocatorMixin"
+    "ScreenRelocatorMixin",
+    "RecipeBookScreenRelocatorMixin",
+    "ContainerScreenBackgroundBoxMixin",
+    "ShulkerBoxScreenBackgroundBoxMixin",
+    "DispenserScreenBackgroundBoxMixin",
+    "HopperScreenBackgroundBoxMixin",
+    "EnchantmentScreenBackgroundBoxMixin",
+    "BeaconScreenBackgroundBoxMixin",
+    "BrewingStandScreenBackgroundBoxMixin",
+    "MerchantScreenBackgroundBoxMixin",
+    "CraftingScreenBackgroundBoxMixin"
   ],
   "injectors": {
     "defaultRequire": 1

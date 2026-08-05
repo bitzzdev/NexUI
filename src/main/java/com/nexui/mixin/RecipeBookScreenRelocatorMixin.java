@@ -3,6 +3,7 @@ package com.nexui.mixin;
 import com.nexui.integration.ScreenRelocator;
 import com.nexui.model.Rect2i;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.gui.screens.inventory.AbstractRecipeBookScreen;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -10,13 +11,13 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /**
- * Places container screens at the position of their moved NexUI component. Runs at
- * the end of {@code AbstractContainerScreen.init}; recipe-book screens clobber
- * {@code leftPos} afterwards, so {@link RecipeBookScreenRelocatorMixin} re-applies
- * the position for them.
+ * Recipe-book screens ({@code InventoryScreen}, {@code CraftingScreen}, ...) reset
+ * {@code leftPos} to the vanilla centered value in {@code AbstractRecipeBookScreen.init}
+ * after {@code super.init()} ran. Re-apply the NexUI position at the very end so the
+ * moved position sticks.
  */
-@Mixin(AbstractContainerScreen.class)
-public abstract class ScreenRelocatorMixin {
+@Mixin(AbstractRecipeBookScreen.class)
+public abstract class RecipeBookScreenRelocatorMixin {
     @Shadow
     public int leftPos;
 
@@ -24,7 +25,7 @@ public abstract class ScreenRelocatorMixin {
     public int topPos;
 
     @Inject(method = "init", at = @At("TAIL"))
-    private void nexui$offsetContainerScreen(CallbackInfo ci) {
+    private void nexui$reapplyOffset(CallbackInfo ci) {
         Rect2i target = ScreenRelocator.getRelocationTarget((AbstractContainerScreen<?>) (Object) this);
         if (target == null) {
             return;
