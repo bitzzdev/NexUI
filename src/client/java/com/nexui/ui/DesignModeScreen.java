@@ -56,7 +56,7 @@ public class DesignModeScreen extends Screen {
             RenderPipeline.renderStyledPanel(context, bounds, component.getStyle());
 
             // Label for editing identification
-            context.drawText(this.textRenderer, component.getName(), bounds.x() + 4, bounds.y() + 4, ColorRGBA.WHITE.toARGB(), false);
+            context.drawText(context.getClient().textRenderer, component.getName(), bounds.x() + 4, bounds.y() + 4, ColorRGBA.WHITE.toARGB(), false);
         }
 
         // Render Selection Outlines
@@ -100,10 +100,10 @@ public class DesignModeScreen extends Screen {
         RenderPipeline.renderStyledPanel(context, barBounds, barStyle);
 
         String title = "NexUI Design Mode Studio  |  Profile: " + ProfileRegistry.getInstance().getActiveProfile().getName();
-        context.drawText(this.textRenderer, title, 20, 24, ColorRGBA.ACCENT_CYAN.toARGB(), false);
+        context.drawText(context.getClient().textRenderer, title, 20, 24, ColorRGBA.ACCENT_CYAN.toARGB(), false);
 
         String actions = "[ESC] Save & Exit  |  [L] Lock  |  [Ctrl+Z] Undo  |  [Ctrl+Y] Redo  |  [Ctrl+C] Copy Style";
-        context.drawText(this.textRenderer, actions, width - 650, 24, ColorRGBA.WHITE.toARGB(), false);
+        context.drawText(context.getClient().textRenderer, actions, width - 650, 24, ColorRGBA.WHITE.toARGB(), false);
     }
 
     @Override
@@ -197,6 +197,6 @@ public class DesignModeScreen extends Screen {
 
     @Override
     public boolean shouldPause() {
-        return false; // Client-side studio overlay without pausing singleplayer server ticks
+        return false;
     }
 }

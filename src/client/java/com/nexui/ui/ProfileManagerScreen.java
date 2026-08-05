@@ -34,8 +34,8 @@ public class ProfileManagerScreen extends Screen {
         RenderPipeline.renderStyledPanel(context, new Rect2i(30, 30, width - 60, height - 60), bgStyle);
 
         // Header
-        context.drawText(this.textRenderer, "NexUI Interface Layout Profiles", 50, 48, ColorRGBA.ACCENT_BLUE.toARGB(), false);
-        context.drawText(this.textRenderer, "Switch profiles instantly for different playstyles or export/import JSON presets.", 50, 64, 0xAAFFFFFF, false);
+        context.drawText(context.getClient().textRenderer, "NexUI Interface Layout Profiles", 50, 48, ColorRGBA.ACCENT_BLUE.toARGB(), false);
+        context.drawText(context.getClient().textRenderer, "Switch profiles instantly for different playstyles or export/import JSON presets.", 50, 64, 0xAAFFFFFF, false);
 
         // Render Profiles List
         List<LayoutProfile> profiles = ProfileRegistry.getInstance().getAllProfiles();
@@ -60,8 +60,8 @@ public class ProfileManagerScreen extends Screen {
             Rect2i bounds = new Rect2i(startX, y, cardW, cardH);
             RenderPipeline.renderStyledPanel(context, bounds, cardStyle);
 
-            context.drawText(this.textRenderer, profile.getName() + (isActive ? " [ACTIVE]" : ""), startX + 16, y + 10, isActive ? ColorRGBA.ACCENT_CYAN.toARGB() : ColorRGBA.WHITE.toARGB(), false);
-            context.drawText(this.textRenderer, profile.getDescription(), startX + 16, y + 26, 0xAAFFFFFF, false);
+            context.drawText(context.getClient().textRenderer, profile.getName() + (isActive ? " [ACTIVE]" : ""), startX + 16, y + 10, isActive ? ColorRGBA.ACCENT_CYAN.toARGB() : ColorRGBA.WHITE.toARGB(), false);
+            context.drawText(context.getClient().textRenderer, profile.getDescription(), startX + 16, y + 26, 0xAAFFFFFF, false);
         }
     }
 

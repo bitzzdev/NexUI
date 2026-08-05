@@ -36,8 +36,8 @@ public class ThemeEditorScreen extends Screen {
         RenderPipeline.renderStyledPanel(context, new Rect2i(20, 20, width - 40, height - 40), bgStyle);
 
         // Header Title
-        context.drawText(this.textRenderer, "NexUI Theme Browser & Customizer", 40, 36, ColorRGBA.ACCENT_CYAN.toARGB(), false);
-        context.drawText(this.textRenderer, "Click a theme preset to apply it globally across all active interface elements.", 40, 52, 0xAAFFFFFF, false);
+        context.drawText(context.getClient().textRenderer, "NexUI Theme Browser & Customizer", 40, 36, ColorRGBA.ACCENT_CYAN.toARGB(), false);
+        context.drawText(context.getClient().textRenderer, "Click a theme preset to apply it globally across all active interface elements.", 40, 52, 0xAAFFFFFF, false);
 
         // Render Theme Grid
         List<Theme> themes = ThemeRegistry.getInstance().getAllThemes();
