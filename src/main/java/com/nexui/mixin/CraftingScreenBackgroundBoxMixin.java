@@ -2,6 +2,7 @@ package com.nexui.mixin;
 
 import com.nexui.integration.ScreenRelocator;
 import com.nexui.model.Rect2i;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.CraftingScreen;
 import org.objectweb.asm.Opcodes;
@@ -21,10 +22,10 @@ public abstract class CraftingScreenBackgroundBoxMixin {
         method = "extractBackground",
         at = @At(value = "FIELD", target = "Lnet/minecraft/client/gui/screens/inventory/CraftingScreen;height:I", opcode = Opcodes.GETFIELD)
     )
-    private int nexui$redirectBoxY(CraftingScreen instance, int original) {
-        Rect2i target = ScreenRelocator.getRelocationTarget((AbstractContainerScreen<?>) instance);
+    private int nexui$redirectBoxY(CraftingScreen instance, GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
+        Rect2i target = ScreenRelocator.getRelocationTarget(instance);
         if (target == null) {
-            return original;
+            return instance.height;
         }
         return target.y() * 2 + ((AbstractContainerScreenAccessor) instance).nexui$imageHeight();
     }

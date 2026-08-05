@@ -2,6 +2,7 @@ package com.nexui.mixin;
 
 import com.nexui.integration.ScreenRelocator;
 import com.nexui.model.Rect2i;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.HopperScreen;
 import org.objectweb.asm.Opcodes;
@@ -16,7 +17,7 @@ import org.spongepowered.asm.mixin.injection.Redirect;
  * moved NexUI component's position (WYSIWYG); the dark overlay is untouched because
  * it is drawn in the super call, not by these field reads. The FIELD targets use
  * this class as owner because javac emits the field reference against the class
- * that reads it.
+ * that reads it, and the handler mirrors the enclosing method's parameters.
  */
 @Mixin(HopperScreen.class)
 public abstract class HopperScreenBackgroundBoxMixin {
@@ -25,10 +26,10 @@ public abstract class HopperScreenBackgroundBoxMixin {
         method = "extractBackground",
         at = @At(value = "FIELD", target = "Lnet/minecraft/client/gui/screens/inventory/HopperScreen;width:I", opcode = Opcodes.GETFIELD)
     )
-    private int nexui$redirectBoxX(HopperScreen instance, int original) {
-        Rect2i target = ScreenRelocator.getRelocationTarget((AbstractContainerScreen<?>) instance);
+    private int nexui$redirectBoxX(HopperScreen instance, GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
+        Rect2i target = ScreenRelocator.getRelocationTarget(instance);
         if (target == null) {
-            return original;
+            return instance.width;
         }
         return target.x() * 2 + ((AbstractContainerScreenAccessor) instance).nexui$imageWidth();
     }
@@ -37,10 +38,10 @@ public abstract class HopperScreenBackgroundBoxMixin {
         method = "extractBackground",
         at = @At(value = "FIELD", target = "Lnet/minecraft/client/gui/screens/inventory/HopperScreen;height:I", opcode = Opcodes.GETFIELD)
     )
-    private int nexui$redirectBoxY(HopperScreen instance, int original) {
-        Rect2i target = ScreenRelocator.getRelocationTarget((AbstractContainerScreen<?>) instance);
+    private int nexui$redirectBoxY(HopperScreen instance, GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
+        Rect2i target = ScreenRelocator.getRelocationTarget(instance);
         if (target == null) {
-            return original;
+            return instance.height;
         }
         return target.y() * 2 + ((AbstractContainerScreenAccessor) instance).nexui$imageHeight();
     }
