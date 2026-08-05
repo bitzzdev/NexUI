@@ -18,6 +18,7 @@ repositories {
 }
 
 loom {
+    splitEnvironmentSourceSets()
 }
 
 dependencies {
