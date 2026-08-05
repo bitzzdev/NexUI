@@ -17,6 +17,8 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.List;
@@ -26,6 +28,7 @@ import java.util.Map;
  * Interactive Figma-style Design Mode screen allowing real-time UI element drag, drop, resize, styling, alignment guides, and toolbar controls.
  */
 public class DesignModeScreen extends Screen {
+    private static final Logger LOGGER = LoggerFactory.getLogger("NexUI-Design");
     private final DesignModeManager manager = DesignModeManager.getInstance();
     private boolean isDragging = false;
     private boolean dragOriginRecorded = false;
@@ -143,17 +146,25 @@ public class DesignModeScreen extends Screen {
         LayoutProfile activeProfile = ProfileRegistry.getInstance().getActiveProfile();
         UIComponent clickedComp = null;
 
-        // Check component hit test
+        // Check component hit test, preferring the smallest box containing the
+        // click so tightly packed elements (e.g. the hotbar cluster) can each be
+        // grabbed individually instead of always hitting the largest overlay.
+        int bestArea = Integer.MAX_VALUE;
         for (UIComponent comp : activeProfile.getComponents().values()) {
             if (comp.isVisible() && comp.getCurrentBounds().contains(mx, my)) {
-                clickedComp = comp;
-                break;
+                Rect2i b = comp.getCurrentBounds();
+                int area = b.width() * b.height();
+                if (area < bestArea) {
+                    bestArea = area;
+                    clickedComp = comp;
+                }
             }
         }
 
         if (clickedComp != null) {
             manager.selectComponent(clickedComp.getId(), false);
             isDragging = true;
+            LOGGER.info("NexUI-design: click picked component '{}' at ({}, {})", clickedComp.getId(), mx, my);
             return true;
         } else {
             manager.clearSelection();
@@ -194,6 +205,9 @@ public class DesignModeScreen extends Screen {
                 targets.put(comp.getId(), new Rect2i(tx, ty, start.width(), start.height()));
             }
             manager.moveSelectedComponentsTo(targets);
+            if (!targets.isEmpty()) {
+                LOGGER.info("NexUI-design: drag moved {} targets: {}", targets.size(), targets.keySet());
+            }
 
             // Compute smart alignment guides
             UIComponent primary = manager.getPrimarySelectedComponent();
