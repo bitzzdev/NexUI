@@ -4,7 +4,7 @@
   <p><b>Design, move, theme, and fine-tune every HUD and GUI element of Minecraft, live — Figma-style.</b></p>
 
   ![Fabric](https://img.shields.io/badge/Mod%20Loader-Fabric-lightgrey?style=for-the-badge&logo=modrinth)
-  ![Environment](https://img.shields.io/badge/Environment-Client-only-blue?style=for-the-badge)
+  ![Environment](https://img.shields.io/badge/Environment-Client%20only-blue?style=for-the-badge)
   ![License](https://img.shields.io/badge/License-MIT-purple?style=for-the-badge)
 </div>
 

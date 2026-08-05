@@ -14,6 +14,9 @@ public interface AbstractContainerScreenAccessor {
     @Accessor("leftPos")
     void nexui$setLeftPos(int leftPos);
 
+    @Accessor("leftPos")
+    int nexui$leftPos();
+
     @Accessor("topPos")
     void nexui$setTopPos(int topPos);
 

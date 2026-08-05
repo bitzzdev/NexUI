@@ -1,5 +1,6 @@
 package com.nexui.ui;
 
+import com.nexui.api.WidgetCategory;
 import com.nexui.engine.RenderPipeline;
 import com.nexui.model.ColorRGBA;
 import com.nexui.model.ComponentStyle;
@@ -20,7 +21,8 @@ import java.util.List;
 /**
  * Screen for toggling the relocator visibility of every UI element placement in the
  * active profile. Hiding only removes the relocator box from the design canvas;
- * it never hides the real in-game element.
+ * it never hides the real in-game element. Category groups (e.g. the hotbar) can be
+ * toggled as a single option.
  */
 public class ElementVisibilityScreen extends Screen {
     private static final int PANEL_X = 40;
@@ -53,8 +55,28 @@ public class ElementVisibilityScreen extends Screen {
         return height - 170;
     }
 
+    private List<WidgetCategory> groupOrder() {
+        List<WidgetCategory> groups = new ArrayList<>();
+        for (UIComponent comp : components) {
+            WidgetCategory cat = comp.getCategory();
+            if (!groups.contains(cat)) {
+                groups.add(cat);
+            }
+        }
+        return groups;
+    }
+
+    private int groupRows() {
+        return groupOrder().size();
+    }
+
+    private int groupSectionHeight() {
+        return groupRows() * ROW_STEP + 8;
+    }
+
     private int maxScroll() {
-        return Math.max(0, components.size() * ROW_STEP - panelHeight() + 8);
+        int individualArea = panelHeight() - groupSectionHeight();
+        return Math.max(0, components.size() * ROW_STEP - individualArea + 8);
     }
 
     private Rect2i footerButtonBounds(int index) {
@@ -62,6 +84,14 @@ public class ElementVisibilityScreen extends Screen {
         int startX = (width - total) / 2;
         int y = height - FOOTER_BUTTON_HEIGHT - 18;
         return new Rect2i(startX + index * (FOOTER_BUTTON_WIDTH + FOOTER_BUTTON_GAP), y, FOOTER_BUTTON_WIDTH, FOOTER_BUTTON_HEIGHT);
+    }
+
+    private int visibleCount(WidgetCategory category) {
+        int count = 0;
+        for (UIComponent comp : components) {
+            if (comp.getCategory() == category && comp.isVisible()) count++;
+        }
+        return count;
     }
 
     @Override
@@ -88,8 +118,18 @@ public class ElementVisibilityScreen extends Screen {
 
         // Scroll-clipped rows
         context.enableScissor(PANEL_X + 2, PANEL_Y + 2, PANEL_X + panelWidth() - 2, PANEL_Y + panelHeight() - 2);
+
+        // Category group rows (always visible, not affected by scroll)
+        List<WidgetCategory> groups = groupOrder();
+        int groupY = PANEL_Y + 6;
+        for (WidgetCategory category : groups) {
+            renderGroupRow(context, category, new Rect2i(PANEL_X + 6, groupY, panelWidth() - 12, ROW_HEIGHT));
+            groupY += ROW_STEP;
+        }
+
+        // Individual component rows (scrollable)
         for (int i = 0; i < components.size(); i++) {
-            int ry = PANEL_Y + 6 + i * ROW_STEP - scrollOffset;
+            int ry = groupY + 4 + i * ROW_STEP - scrollOffset;
             if (ry + ROW_HEIGHT < PANEL_Y || ry > PANEL_Y + panelHeight()) continue;
             renderRow(context, components.get(i), new Rect2i(PANEL_X + 6, ry, panelWidth() - 12, ROW_HEIGHT));
         }
@@ -99,6 +139,32 @@ public class ElementVisibilityScreen extends Screen {
         renderFooterButton(context, footerButtonBounds(0), "Show All", false);
         renderFooterButton(context, footerButtonBounds(1), "Hide All", false);
         renderFooterButton(context, footerButtonBounds(2), "Done", true);
+    }
+
+    private void renderGroupRow(GuiGraphicsExtractor context, WidgetCategory category, Rect2i rowBounds) {
+        int count = 0;
+        for (UIComponent comp : components) {
+            if (comp.getCategory() == category) count++;
+        }
+        int visible = visibleCount(category);
+        boolean allVisible = visible == count;
+
+        ComponentStyle rowStyle = new ComponentStyle();
+        rowStyle.setBackgroundColor(allVisible ? new ColorRGBA(30, 60, 70, 220) : new ColorRGBA(24, 24, 32, 200));
+        rowStyle.setBorderColor(new ColorRGBA(99, 102, 241, 200));
+        rowStyle.setBorderWidth(1);
+        RenderPipeline.renderStyledPanel(context, rowBounds, rowStyle);
+
+        context.text(this.font, category.getLabel() + " (Group)", rowBounds.x() + 10, rowBounds.y() + 6, allVisible ? ColorRGBA.WHITE.toARGB() : 0x88FFFFFF, false);
+
+        int pillX = rowBounds.right() - PILL_WIDTH - 8;
+        int pillY = rowBounds.y() + (ROW_HEIGHT - PILL_HEIGHT) / 2;
+        ComponentStyle pillStyle = new ComponentStyle();
+        pillStyle.setBackgroundColor(allVisible ? new ColorRGBA(6, 182, 212, 220) : new ColorRGBA(60, 60, 70, 200));
+        pillStyle.setBorderWidth(0);
+        RenderPipeline.renderStyledPanel(context, new Rect2i(pillX, pillY, PILL_WIDTH, PILL_HEIGHT), pillStyle);
+        String label = visible + "/" + count;
+        context.text(this.font, label, pillX + (PILL_WIDTH - this.font.width(label)) / 2, pillY + 5, allVisible ? ColorRGBA.BLACK.toARGB() : ColorRGBA.WHITE.toARGB(), false);
     }
 
     private void renderRow(GuiGraphicsExtractor context, UIComponent comp, Rect2i rowBounds) {
@@ -152,9 +218,22 @@ public class ElementVisibilityScreen extends Screen {
             return true;
         }
 
+        // Category group rows
+        List<WidgetCategory> groups = groupOrder();
+        int groupY = PANEL_Y + 6;
+        for (WidgetCategory category : groups) {
+            Rect2i rowBounds = new Rect2i(PANEL_X + 6, groupY, panelWidth() - 12, ROW_HEIGHT);
+            if (rowBounds.contains(mx, my)) {
+                toggleGroup(category);
+                return true;
+            }
+            groupY += ROW_STEP;
+        }
+
+        // Individual rows
         int panelH = panelHeight();
         for (int i = 0; i < components.size(); i++) {
-            int ry = PANEL_Y + 6 + i * ROW_STEP - scrollOffset;
+            int ry = groupY + 4 + i * ROW_STEP - scrollOffset;
             if (ry + ROW_HEIGHT < PANEL_Y || ry > PANEL_Y + panelH) continue;
             Rect2i rowBounds = new Rect2i(PANEL_X + 6, ry, panelWidth() - 12, ROW_HEIGHT);
             if (rowBounds.contains(mx, my)) {
@@ -165,6 +244,19 @@ public class ElementVisibilityScreen extends Screen {
         }
 
         return super.mouseClicked(event, doubleClicked);
+    }
+
+    private void toggleGroup(WidgetCategory category) {
+        int count = 0;
+        for (UIComponent comp : components) {
+            if (comp.getCategory() == category) count++;
+        }
+        boolean allVisible = visibleCount(category) == count;
+        for (UIComponent comp : components) {
+            if (comp.getCategory() == category) {
+                comp.setVisible(!allVisible);
+            }
+        }
     }
 
     @Override

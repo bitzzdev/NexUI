@@ -41,4 +41,18 @@ public abstract class CraftingScreenBackgroundBoxMixin {
         }
         return target.y() * 2 + ((AbstractContainerScreenAccessor) instance).nexui$imageHeight();
     }
+
+    @Redirect(
+        method = "getRecipeBookButtonPosition",
+        at = @At(value = "FIELD", target = "Lnet/minecraft/client/gui/screens/inventory/CraftingScreen;leftPos:I", opcode = Opcodes.GETFIELD)
+    )
+    private int nexui$redirectButtonX(CraftingScreen instance) {
+        Rect2i target = ScreenRelocator.getRelocationTarget(instance);
+        AbstractContainerScreenAccessor accessor = (AbstractContainerScreenAccessor) instance;
+        if (target == null) {
+            return accessor.nexui$leftPos();
+        }
+        int defaultX = (instance.width - accessor.nexui$imageWidth()) / 2;
+        return accessor.nexui$leftPos() + (target.x() - defaultX);
+    }
 }

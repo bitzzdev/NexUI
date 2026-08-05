@@ -14,7 +14,9 @@
     "BeaconScreenBackgroundBoxMixin",
     "BrewingStandScreenBackgroundBoxMixin",
     "MerchantScreenBackgroundBoxMixin",
-    "CraftingScreenBackgroundBoxMixin"
+    "CraftingScreenBackgroundBoxMixin",
+    "InventoryScreenRecipeBookButtonMixin",
+    "AbstractFurnaceScreenRecipeBookButtonMixin"
   ],
   "injectors": {
     "defaultRequire": 1
