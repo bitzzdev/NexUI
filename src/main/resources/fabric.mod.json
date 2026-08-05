@@ -4,6 +4,7 @@
   "version": "${version}",
   "name": "NexUI - Interface Studio",
   "description": "Modern, modular, Figma-like Minecraft client-side interface customization studio.",
+  "icon": "logo.png",
   "authors": [
     "NexUI Studio Team"
   ],

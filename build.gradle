@@ -44,6 +44,12 @@ processResources {
     inputs.property "version", project.version
     filteringCharset "UTF-8"
 
+    // Package the mod icon (repo-root logo.png) at the JAR root so fabric.mod.json's
+    // "icon": "logo.png" resolves and it shows up in the mod list / Modrinth.
+    from("logo.png") {
+        include "logo.png"
+    }
+
     filesMatching("fabric.mod.json") {
         expand "version": project.version
     }
