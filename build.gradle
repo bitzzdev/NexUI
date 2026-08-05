@@ -21,17 +21,17 @@ loom {
     splitEnvironmentSourceSets()
 }
 
-sourceSets {
-    client {
-        compileClasspath += main.compileClasspath + main.output
-        runtimeClasspath += main.runtimeClasspath + main.output
-    }
+configurations {
+    clientCompileClasspath.extendsFrom compileClasspath
+    clientRuntimeClasspath.extendsFrom runtimeClasspath
 }
 
 dependencies {
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
     implementation "net.fabricmc:fabric-loader:${project.loader_version}"
     implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+    clientImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+    clientImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 }
 
 java {

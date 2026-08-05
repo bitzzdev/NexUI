@@ -10,9 +10,9 @@ import com.nexui.model.Rect2i;
 import com.nexui.model.UIComponent;
 import com.nexui.registry.ProfileRegistry;
 import com.nexui.ui.components.PropertyInspectorWidget;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.network.chat.Component;
+import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.text.Text;
 
 import java.util.List;
 
@@ -27,7 +27,7 @@ public class DesignModeScreen extends Screen {
     private List<AlignmentGuideEngine.AlignmentGuide> currentGuides = List.of();
 
     public DesignModeScreen() {
-        super(Component.literal("NexUI Design Mode Studio"));
+        super(Text.literal("NexUI Design Mode Studio"));
     }
 
     @Override
@@ -37,7 +37,7 @@ public class DesignModeScreen extends Screen {
     }
 
     @Override
-    public void render(GuiGraphics context, int mouseX, int mouseY, float delta) {
+    public void render(DrawContext context, int mouseX, int mouseY, float delta) {
         super.render(context, mouseX, mouseY, delta);
 
         LayoutProfile activeProfile = ProfileRegistry.getInstance().getActiveProfile();
@@ -56,7 +56,9 @@ public class DesignModeScreen extends Screen {
             RenderPipeline.renderStyledPanel(context, bounds, component.getStyle());
 
             // Label for editing identification
-            context.drawString(context.getClient().font, component.getName(), bounds.x() + 4, bounds.y() + 4, ColorRGBA.WHITE.toARGB(), false);
+            if (client != null && client.textRenderer != null) {
+                context.drawText(client.textRenderer, component.getName(), bounds.x() + 4, bounds.y() + 4, ColorRGBA.WHITE.toARGB(), false);
+            }
         }
 
         // Render Selection Outlines
@@ -80,7 +82,7 @@ public class DesignModeScreen extends Screen {
         }
     }
 
-    private void renderGrid(GuiGraphics context, int gridSize) {
+    private void renderGrid(DrawContext context, int gridSize) {
         int gridColor = new ColorRGBA(255, 255, 255, 15).toARGB();
         for (int x = 0; x < width; x += gridSize * 2) {
             context.fill(x, 0, x + 1, height, gridColor);
@@ -90,7 +92,7 @@ public class DesignModeScreen extends Screen {
         }
     }
 
-    private void renderToolbar(GuiGraphics context) {
+    private void renderToolbar(DrawContext context) {
         ComponentStyle barStyle = new ComponentStyle();
         barStyle.setBackgroundColor(new ColorRGBA(18, 18, 24, 230));
         barStyle.setBorderColor(ColorRGBA.ACCENT_BLUE);
@@ -99,11 +101,13 @@ public class DesignModeScreen extends Screen {
         Rect2i barBounds = new Rect2i(10, 10, width - 240, 36);
         RenderPipeline.renderStyledPanel(context, barBounds, barStyle);
 
-        String title = "NexUI Design Mode Studio  |  Profile: " + ProfileRegistry.getInstance().getActiveProfile().getName();
-        context.drawString(context.getClient().font, title, 20, 24, ColorRGBA.ACCENT_CYAN.toARGB(), false);
+        if (client != null && client.textRenderer != null) {
+            String title = "NexUI Design Mode Studio  |  Profile: " + ProfileRegistry.getInstance().getActiveProfile().getName();
+            context.drawText(client.textRenderer, title, 20, 24, ColorRGBA.ACCENT_CYAN.toARGB(), false);
 
-        String actions = "[ESC] Save & Exit  |  [L] Lock  |  [Ctrl+Z] Undo  |  [Ctrl+Y] Redo  |  [Ctrl+C] Copy Style";
-        context.drawString(context.getClient().font, actions, width - 650, 24, ColorRGBA.WHITE.toARGB(), false);
+            String actions = "[ESC] Save & Exit  |  [L] Lock  |  [Ctrl+Z] Undo  |  [Ctrl+Y] Redo  |  [Ctrl+C] Copy Style";
+            context.drawText(client.textRenderer, actions, width - 650, 24, ColorRGBA.WHITE.toARGB(), false);
+        }
     }
 
     @Override
@@ -170,7 +174,7 @@ public class DesignModeScreen extends Screen {
 
         if (keyCode == 256) { // ESC Key
             manager.setDesignModeActive(false);
-            this.onClose();
+            this.close();
             return true;
         }
         if (keyCode == 76) { // 'L' Key - Toggle Lock
@@ -197,7 +201,7 @@ public class DesignModeScreen extends Screen {
     }
 
     @Override
-    public boolean isPauseScreen() {
+    public boolean shouldPause() {
         return false;
     }
 }

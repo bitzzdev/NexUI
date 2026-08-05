@@ -8,9 +8,9 @@ import com.nexui.model.Theme;
 import com.nexui.registry.ProfileRegistry;
 import com.nexui.registry.ThemeRegistry;
 import com.nexui.ui.components.ThemeCardWidget;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.network.chat.Component;
+import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.text.Text;
 
 import java.util.List;
 
@@ -20,11 +20,11 @@ import java.util.List;
 public class ThemeEditorScreen extends Screen {
 
     public ThemeEditorScreen() {
-        super(Component.literal("NexUI Theme Studio"));
+        super(Text.literal("NexUI Theme Studio"));
     }
 
     @Override
-    public void render(GuiGraphics context, int mouseX, int mouseY, float delta) {
+    public void render(DrawContext context, int mouseX, int mouseY, float delta) {
         super.render(context, mouseX, mouseY, delta);
 
         // Background Glass Panel
@@ -36,8 +36,10 @@ public class ThemeEditorScreen extends Screen {
         RenderPipeline.renderStyledPanel(context, new Rect2i(20, 20, width - 40, height - 40), bgStyle);
 
         // Header Title
-        context.drawString(context.getClient().font, "NexUI Theme Browser & Customizer", 40, 36, ColorRGBA.ACCENT_CYAN.toARGB(), false);
-        context.drawString(context.getClient().font, "Click a theme preset to apply it globally across all active interface elements.", 40, 52, 0xAAFFFFFF, false);
+        if (client != null && client.textRenderer != null) {
+            context.drawText(client.textRenderer, "NexUI Theme Browser & Customizer", 40, 36, ColorRGBA.ACCENT_CYAN.toARGB(), false);
+            context.drawText(client.textRenderer, "Click a theme preset to apply it globally across all active interface elements.", 40, 52, 0xAAFFFFFF, false);
+        }
 
         // Render Theme Grid
         List<Theme> themes = ThemeRegistry.getInstance().getAllThemes();
@@ -98,7 +100,7 @@ public class ThemeEditorScreen extends Screen {
     }
 
     @Override
-    public boolean isPauseScreen() {
+    public boolean shouldPause() {
         return false;
     }
 }

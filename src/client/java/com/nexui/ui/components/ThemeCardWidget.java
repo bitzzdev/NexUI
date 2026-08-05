@@ -5,14 +5,14 @@ import com.nexui.model.ColorRGBA;
 import com.nexui.model.ComponentStyle;
 import com.nexui.model.Rect2i;
 import com.nexui.model.Theme;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.DrawContext;
 
 /**
  * Preview card widget for theme selection grid.
  */
 public class ThemeCardWidget {
 
-    public static void renderThemeCard(GuiGraphics context, Theme theme, Rect2i bounds, boolean isSelected) {
+    public static void renderThemeCard(DrawContext context, Theme theme, Rect2i bounds, boolean isSelected) {
         if (theme == null || bounds == null) return;
 
         ComponentStyle cardStyle = new ComponentStyle();
@@ -25,9 +25,6 @@ public class ThemeCardWidget {
 
         int x = bounds.x();
         int y = bounds.y();
-
-        context.drawString(context.getClient().font, theme.getName(), x + 10, y + 10, theme.getTextColor().toARGB(), false);
-        context.drawString(context.getClient().font, theme.getDescription(), x + 10, y + 26, 0xAAFFFFFF, false);
 
         // Preview Swatches
         context.fill(x + 10, y + 42, x + 30, y + 54, theme.getPrimaryColor().toARGB());

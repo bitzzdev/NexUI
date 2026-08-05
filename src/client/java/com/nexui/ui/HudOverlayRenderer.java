@@ -3,20 +3,19 @@ package com.nexui.ui;
 import com.nexui.engine.AnimationController;
 import com.nexui.engine.DesignModeManager;
 import com.nexui.engine.RenderPipeline;
-import com.nexui.model.ColorRGBA;
 import com.nexui.model.LayoutProfile;
 import com.nexui.model.Rect2i;
 import com.nexui.model.UIComponent;
 import com.nexui.registry.ProfileRegistry;
-import net.minecraft.client.DeltaTracker;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.render.RenderTickCounter;
 
 /**
  * Custom Client HUD Overlay Renderer Hook.
  */
 public class HudOverlayRenderer {
 
-    public static void onHudRender(GuiGraphics context, DeltaTracker tickCounter) {
+    public static void onHudRender(DrawContext context, RenderTickCounter tickCounter) {
         // Do not render HUD duplicate elements during active Design Mode
         if (DesignModeManager.getInstance().isDesignModeActive()) {
             return;
@@ -25,7 +24,7 @@ public class HudOverlayRenderer {
         LayoutProfile activeProfile = ProfileRegistry.getInstance().getActiveProfile();
         if (activeProfile == null) return;
 
-        float delta = tickCounter.getGameTimeDeltaPartialTick(false);
+        float delta = tickCounter.getTickDelta(false);
 
         for (UIComponent component : activeProfile.getComponents().values()) {
             if (!component.isVisible()) continue;
@@ -36,9 +35,6 @@ public class HudOverlayRenderer {
 
             // Render component custom background glass & border style
             RenderPipeline.renderStyledPanel(context, animatedBounds, component.getStyle());
-
-            // Label watermark
-            context.drawString(context.getClient().font, component.getName(), animatedBounds.x() + 4, animatedBounds.y() + 4, ColorRGBA.WHITE.toARGB(), false);
         }
     }
 }
