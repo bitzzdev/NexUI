@@ -21,8 +21,8 @@ import java.util.List;
 /**
  * Screen for toggling the relocator visibility of every UI element placement in the
  * active profile. Hiding only removes the relocator box from the design canvas;
- * it never hides the real in-game element. Category groups (e.g. the hotbar) can be
- * toggled as a single option.
+ * it never hides the real in-game element. Category groups (e.g. the hotbar) are
+ * single options interleaved with their members in one scrollable list.
  */
 public class ElementVisibilityScreen extends Screen {
     private static final int PANEL_X = 40;
@@ -36,7 +36,22 @@ public class ElementVisibilityScreen extends Screen {
     private static final int FOOTER_BUTTON_HEIGHT = 34;
     private static final int FOOTER_BUTTON_GAP = 16;
 
+    private record VisibilityRow(WidgetCategory group, UIComponent component) {
+        static VisibilityRow group(WidgetCategory category) {
+            return new VisibilityRow(category, null);
+        }
+
+        static VisibilityRow component(UIComponent comp) {
+            return new VisibilityRow(null, comp);
+        }
+
+        boolean isGroup() {
+            return group != null;
+        }
+    }
+
     private final List<UIComponent> components = new ArrayList<>();
+    private final List<VisibilityRow> rows = new ArrayList<>();
     private int scrollOffset = 0;
 
     public ElementVisibilityScreen() {
@@ -44,6 +59,21 @@ public class ElementVisibilityScreen extends Screen {
         LayoutProfile active = ProfileRegistry.getInstance().getActiveProfile();
         if (active != null) {
             this.components.addAll(active.getComponents().values());
+
+            List<WidgetCategory> groupOrder = new ArrayList<>();
+            for (UIComponent comp : this.components) {
+                if (!groupOrder.contains(comp.getCategory())) {
+                    groupOrder.add(comp.getCategory());
+                }
+            }
+            for (WidgetCategory category : groupOrder) {
+                this.rows.add(VisibilityRow.group(category));
+                for (UIComponent comp : this.components) {
+                    if (comp.getCategory() == category) {
+                        this.rows.add(VisibilityRow.component(comp));
+                    }
+                }
+            }
         }
     }
 
@@ -55,28 +85,8 @@ public class ElementVisibilityScreen extends Screen {
         return height - 170;
     }
 
-    private List<WidgetCategory> groupOrder() {
-        List<WidgetCategory> groups = new ArrayList<>();
-        for (UIComponent comp : components) {
-            WidgetCategory cat = comp.getCategory();
-            if (!groups.contains(cat)) {
-                groups.add(cat);
-            }
-        }
-        return groups;
-    }
-
-    private int groupRows() {
-        return groupOrder().size();
-    }
-
-    private int groupSectionHeight() {
-        return groupRows() * ROW_STEP + 8;
-    }
-
     private int maxScroll() {
-        int individualArea = panelHeight() - groupSectionHeight();
-        return Math.max(0, components.size() * ROW_STEP - individualArea + 8);
+        return Math.max(0, rows.size() * ROW_STEP - panelHeight() + 8);
     }
 
     private Rect2i footerButtonBounds(int index) {
@@ -116,26 +126,19 @@ public class ElementVisibilityScreen extends Screen {
         panelStyle.setBorderWidth(1);
         RenderPipeline.renderStyledPanel(context, new Rect2i(PANEL_X, PANEL_Y, panelWidth(), panelHeight()), panelStyle);
 
-        // Scroll-clipped rows
+        // Scroll-clipped rows (groups and members scroll together as one list)
         context.enableScissor(PANEL_X + 2, PANEL_Y + 2, PANEL_X + panelWidth() - 2, PANEL_Y + panelHeight() - 2);
-
-        // Category group rows (always visible, not affected by scroll)
-        List<WidgetCategory> groups = groupOrder();
-        int groupY = PANEL_Y + 6;
-        for (WidgetCategory category : groups) {
-            renderGroupRow(context, category, new Rect2i(PANEL_X + 6, groupY, panelWidth() - 12, ROW_HEIGHT));
-            groupY += ROW_STEP;
-        }
-
-        // Individual component rows (scrollable). Clipped to the area below the group
-        // rows so scrolled rows never draw on top of the groups.
-        context.enableScissor(PANEL_X + 2, groupY + 4, PANEL_X + panelWidth() - 2, PANEL_Y + panelHeight() - 2);
-        for (int i = 0; i < components.size(); i++) {
-            int ry = groupY + 4 + i * ROW_STEP - scrollOffset;
+        for (int i = 0; i < rows.size(); i++) {
+            int ry = PANEL_Y + 6 + i * ROW_STEP - scrollOffset;
             if (ry + ROW_HEIGHT < PANEL_Y || ry > PANEL_Y + panelHeight()) continue;
-            renderRow(context, components.get(i), new Rect2i(PANEL_X + 6, ry, panelWidth() - 12, ROW_HEIGHT));
+            VisibilityRow row = rows.get(i);
+            Rect2i rowBounds = new Rect2i(PANEL_X + 6, ry, panelWidth() - 12, ROW_HEIGHT);
+            if (row.isGroup()) {
+                renderGroupRow(context, row.group(), rowBounds);
+            } else {
+                renderRow(context, row.component(), rowBounds);
+            }
         }
-        context.disableScissor();
         context.disableScissor();
 
         // Footer buttons
@@ -221,27 +224,19 @@ public class ElementVisibilityScreen extends Screen {
             return true;
         }
 
-        // Category group rows
-        List<WidgetCategory> groups = groupOrder();
-        int groupY = PANEL_Y + 6;
-        for (WidgetCategory category : groups) {
-            Rect2i rowBounds = new Rect2i(PANEL_X + 6, groupY, panelWidth() - 12, ROW_HEIGHT);
-            if (rowBounds.contains(mx, my)) {
-                toggleGroup(category);
-                return true;
-            }
-            groupY += ROW_STEP;
-        }
-
-        // Individual rows
         int panelH = panelHeight();
-        for (int i = 0; i < components.size(); i++) {
-            int ry = groupY + 4 + i * ROW_STEP - scrollOffset;
+        for (int i = 0; i < rows.size(); i++) {
+            int ry = PANEL_Y + 6 + i * ROW_STEP - scrollOffset;
             if (ry + ROW_HEIGHT < PANEL_Y || ry > PANEL_Y + panelH) continue;
             Rect2i rowBounds = new Rect2i(PANEL_X + 6, ry, panelWidth() - 12, ROW_HEIGHT);
             if (rowBounds.contains(mx, my)) {
-                UIComponent comp = components.get(i);
-                comp.setVisible(!comp.isVisible());
+                VisibilityRow row = rows.get(i);
+                if (row.isGroup()) {
+                    toggleGroup(row.group());
+                } else {
+                    UIComponent comp = row.component();
+                    comp.setVisible(!comp.isVisible());
+                }
                 return true;
             }
         }
