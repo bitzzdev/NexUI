@@ -13,6 +13,12 @@
   },
   "license": "MIT",
   "environment": "client",
+  "mixins": [
+    {
+      "config": "nexui.mixins.json",
+      "environment": "client"
+    }
+  ],
   "entrypoints": {
     "client": [
       "com.nexui.NexUIClient"

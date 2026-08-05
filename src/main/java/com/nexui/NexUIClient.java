@@ -2,15 +2,13 @@ package com.nexui;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import com.nexui.config.ConfigManager;
+import com.nexui.integration.HudRelocator;
 import com.nexui.registry.ProfileRegistry;
 import com.nexui.registry.ThemeRegistry;
 import com.nexui.ui.DesignModeScreen;
-import com.nexui.ui.HudOverlayRenderer;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
-import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
-import net.fabricmc.fabric.api.client.rendering.v1.hud.VanillaHudElements;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.resources.Identifier;
 import org.lwjgl.glfw.GLFW;
@@ -50,11 +48,8 @@ public class NexUIClient implements ClientModInitializer {
             }
         });
 
-        // HUD hooks live under net.fabricmc.fabric.api.client.rendering.v1.hud in Fabric API 26.2
-        HudElementRegistry.attachElementAfter(
-            VanillaHudElements.MISC_OVERLAYS,
-            Identifier.fromNamespaceAndPath(MOD_ID, "hud_overlay"),
-            HudOverlayRenderer.INSTANCE
-        );
+        // Real HUD element relocation: replace each vanilla HUD element with a wrapper
+        // that moves/hides it according to the active profile's component placement.
+        HudRelocator.registerRelocations();
     }
 }
