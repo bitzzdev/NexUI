@@ -51,16 +51,16 @@ public class DesignModeScreen extends Screen {
             renderGrid(context, activeProfile.getGridSize());
         }
 
-        // Render all UI components
+        // Render all UI components (hidden ones dimmed so every relocator stays visible)
         for (UIComponent component : activeProfile.getComponents().values()) {
-            if (!component.isVisible()) continue;
             Rect2i bounds = component.getCurrentBounds();
 
             // Render component background panel
             RenderPipeline.renderStyledPanel(context, bounds, component.getStyle());
 
             // Label for editing identification
-            context.text(this.font, component.getName(), bounds.x() + 4, bounds.y() + 4, ColorRGBA.WHITE.toARGB(), false);
+            String label = component.isVisible() ? component.getName() : component.getName() + " (hidden)";
+            context.text(this.font, label, bounds.x() + 4, bounds.y() + 4, component.isVisible() ? ColorRGBA.WHITE.toARGB() : 0x66FFFFFF, false);
         }
 
         // Render Selection Outlines

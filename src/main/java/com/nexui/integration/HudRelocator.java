@@ -3,6 +3,8 @@ package com.nexui.integration;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.VanillaHudElements;
 import net.minecraft.resources.Identifier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -12,6 +14,7 @@ import java.util.Map;
  * so that moving/resizing/hiding a component actually affects the real element.
  */
 public final class HudRelocator {
+    private static final Logger LOGGER = LoggerFactory.getLogger("NexUI-HUD");
     private static final Map<String, Identifier> COMPONENT_TO_LAYER = new LinkedHashMap<>();
 
     static {
@@ -40,8 +43,13 @@ public final class HudRelocator {
      * relative to profile creation does not matter.
      */
     public static void registerRelocations() {
-        COMPONENT_TO_LAYER.forEach((componentId, layerId) ->
-            HudElementRegistry.replaceElement(layerId, vanilla -> new RelocatedHudElement(componentId, vanilla))
-        );
+        COMPONENT_TO_LAYER.forEach((componentId, layerId) -> {
+            try {
+                HudElementRegistry.replaceElement(layerId, vanilla -> new RelocatedHudElement(componentId, vanilla));
+                LOGGER.info("NexUI: hooked component '{}' onto vanilla layer '{}'", componentId, layerId);
+            } catch (Exception e) {
+                LOGGER.error("NexUI: failed to hook component '{}' onto layer '{}'", componentId, layerId, e);
+            }
+        });
     }
 }

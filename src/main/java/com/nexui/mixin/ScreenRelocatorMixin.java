@@ -6,6 +6,8 @@ import com.nexui.model.Rect2i;
 import com.nexui.model.UIComponent;
 import com.nexui.registry.ProfileRegistry;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -18,6 +20,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
  */
 @Mixin(AbstractContainerScreen.class)
 public abstract class ScreenRelocatorMixin {
+    private static final Logger LOGGER = LoggerFactory.getLogger("NexUI-Screen");
+    private static boolean logged = false;
+
     @Shadow
     public int leftPos;
 
@@ -34,12 +39,26 @@ public abstract class ScreenRelocatorMixin {
         LayoutProfile profile = ProfileRegistry.getInstance().getActiveProfile();
         UIComponent component = profile == null ? null : profile.getComponent(componentId);
         if (component == null || !component.isVisible()) {
+            if (!logged) {
+                logged = true;
+                LOGGER.info("NexUI: screen '{}' not relocated (component null or hidden)", componentId);
+            }
             return;
         }
 
         Rect2i def = component.getDefaultBounds();
         Rect2i cur = component.getCurrentBounds();
-        leftPos += cur.x() - def.x();
-        topPos += cur.y() - def.y();
+
+        if (cur.x() != def.x() || cur.y() != def.y()) {
+            // Absolute WYSIWYG: a moved component places the real screen exactly
+            // where its box sits on the design canvas. Untouched components keep
+            // the vanilla centered position.
+            if (!logged) {
+                logged = true;
+                LOGGER.info("NexUI: moving screen '{}' to ({}, {})", componentId, cur.x(), cur.y());
+            }
+            leftPos = cur.x();
+            topPos = cur.y();
+        }
     }
 }
