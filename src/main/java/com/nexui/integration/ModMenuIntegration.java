@@ -1,14 +1,14 @@
 package com.nexui.integration;
 
-import com.nexui.ui.ThemeEditorScreen;
-import net.minecraft.client.gui.screens.Screen;
+import com.nexui.ui.DesignModeScreen;
+import net.minecraft.client.gui.screen.Screen;
 
 /**
- * Native configuration screen factory integration for NexUI.
+ * Mod Menu integration config factory hook.
  */
 public class ModMenuIntegration {
 
     public static Screen createConfigScreen(Screen parent) {
-        return new ThemeEditorScreen();
+        return new DesignModeScreen();
     }
 }
