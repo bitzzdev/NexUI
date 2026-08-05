@@ -25,13 +25,20 @@ public class NexUIClient implements ClientModInitializer {
         ThemeRegistry.getInstance();
         ProfileRegistry.getInstance();
 
+        // Register a dedicated "NexUI Studio" category so the keybind is clearly
+        // visible in Options -> Controls -> Keyboard/Mouse (instead of being buried
+        // under the vanilla "Miscellaneous" section).
+        KeyMapping.Category nexuiCategory = KeyMapping.Category.register(
+            Identifier.fromNamespaceAndPath(MOD_ID, "general")
+        );
+
         // KeyMapping now takes a KeyMapping.Category instead of a raw translation key.
         // Fabric's old KeyBindingHelper is gone; use KeyMappingHelper instead.
         openDesignModeKey = KeyMappingHelper.registerKeyMapping(new KeyMapping(
             "key.nexui.open_design_mode",
             InputConstants.Type.KEYSYM,
             GLFW.GLFW_KEY_RIGHT_SHIFT,
-            KeyMapping.Category.MISC
+            nexuiCategory
         ));
 
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
