@@ -10,6 +10,7 @@ import com.nexui.model.Rect2i;
 import com.nexui.model.UIComponent;
 import com.nexui.registry.ProfileRegistry;
 import com.nexui.ui.components.PropertyInspectorWidget;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.KeyEvent;
@@ -93,26 +94,43 @@ public class DesignModeScreen extends Screen {
         }
     }
 
+    private Rect2i visibilityButtonBounds() {
+        return new Rect2i(width - 358, 17, 120, 38);
+    }
+
     private void renderToolbar(GuiGraphicsExtractor context) {
         ComponentStyle barStyle = new ComponentStyle();
         barStyle.setBackgroundColor(new ColorRGBA(18, 18, 24, 230));
         barStyle.setBorderColor(ColorRGBA.ACCENT_BLUE);
         barStyle.setBorderWidth(1);
 
-        Rect2i barBounds = new Rect2i(10, 10, width - 240, 36);
+        Rect2i barBounds = new Rect2i(10, 10, width - 240, 52);
         RenderPipeline.renderStyledPanel(context, barBounds, barStyle);
 
         String title = "NexUI Design Mode Studio  |  Profile: " + ProfileRegistry.getInstance().getActiveProfile().getName();
-        context.text(this.font, title, 20, 24, ColorRGBA.ACCENT_CYAN.toARGB(), false);
+        context.text(this.font, title, 20, 20, ColorRGBA.ACCENT_CYAN.toARGB(), false);
 
         String actions = "[ESC] Save & Exit  |  [L] Lock  |  [Ctrl+Z] Undo  |  [Ctrl+Y] Redo  |  [Ctrl+C] Copy Style";
-        context.text(this.font, actions, width - 650, 24, ColorRGBA.WHITE.toARGB(), false);
+        context.text(this.font, actions, 20, 38, ColorRGBA.WHITE.toARGB(), false);
+
+        Rect2i buttonBounds = visibilityButtonBounds();
+        ComponentStyle buttonStyle = new ComponentStyle();
+        buttonStyle.setBackgroundColor(new ColorRGBA(99, 102, 241, 230));
+        buttonStyle.setBorderColor(ColorRGBA.ACCENT_BLUE);
+        buttonStyle.setBorderWidth(1);
+        RenderPipeline.renderStyledPanel(context, buttonBounds, buttonStyle);
+        context.text(this.font, "Visibility", buttonBounds.x() + (buttonBounds.width() - this.font.width("Visibility")) / 2, buttonBounds.y() + 14, ColorRGBA.WHITE.toARGB(), false);
     }
 
     @Override
     public boolean mouseClicked(MouseButtonEvent event, boolean doubleClicked) {
         int mx = (int) event.x();
         int my = (int) event.y();
+
+        if (visibilityButtonBounds().contains(mx, my)) {
+            Minecraft.getInstance().gui.setScreen(new ElementVisibilityScreen());
+            return true;
+        }
 
         LayoutProfile activeProfile = ProfileRegistry.getInstance().getActiveProfile();
         UIComponent clickedComp = null;
