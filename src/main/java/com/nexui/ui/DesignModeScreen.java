@@ -38,7 +38,9 @@ public class DesignModeScreen extends Screen {
 
     @Override
     public void extractRenderState(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
-        this.extractBackground(context, mouseX, mouseY, delta);
+        // Note: Screen.extractRenderStateWithTooltipAndSubtitles already calls
+        // extractBackground (which applies the blur) before this method, so we must
+        // NOT call extractBackground again here (it would double-blur and crash).
         super.extractRenderState(context, mouseX, mouseY, delta);
 
         LayoutProfile activeProfile = ProfileRegistry.getInstance().getActiveProfile();
