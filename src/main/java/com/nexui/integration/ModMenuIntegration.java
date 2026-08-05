@@ -1,7 +1,7 @@
 package com.nexui.integration;
 
 import com.nexui.ui.DesignModeScreen;
-import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.screens.Screen;
 
 /**
  * Mod Menu integration config factory hook.

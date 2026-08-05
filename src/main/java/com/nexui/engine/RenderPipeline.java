@@ -3,14 +3,14 @@ package com.nexui.engine;
 import com.nexui.model.ColorRGBA;
 import com.nexui.model.ComponentStyle;
 import com.nexui.model.Rect2i;
-import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.GuiGraphics;
 
 /**
  * Modern UI Rendering Pipeline supporting glassmorphism, smooth borders, outlines, and alignment guides.
  */
 public class RenderPipeline {
 
-    public static void renderStyledPanel(DrawContext context, Rect2i bounds, ComponentStyle style) {
+    public static void renderStyledPanel(GuiGraphics context, Rect2i bounds, ComponentStyle style) {
         if (bounds == null || style == null) return;
 
         int x = bounds.x();
@@ -32,7 +32,7 @@ public class RenderPipeline {
         }
     }
 
-    public static void renderSelectionOutline(DrawContext context, Rect2i bounds, boolean isPrimary) {
+    public static void renderSelectionOutline(GuiGraphics context, Rect2i bounds, boolean isPrimary) {
         if (bounds == null) return;
         int color = isPrimary ? ColorRGBA.ACCENT_CYAN.toARGB() : ColorRGBA.ACCENT_BLUE.toARGB();
         int bw = 2;
@@ -47,7 +47,7 @@ public class RenderPipeline {
         context.fill(x + w - bw, y, x + w, y + h, color);
     }
 
-    public static void renderAlignmentGuide(DrawContext context, AlignmentGuideEngine.AlignmentGuide guide, int screenWidth, int screenHeight) {
+    public static void renderAlignmentGuide(GuiGraphics context, AlignmentGuideEngine.AlignmentGuide guide, int screenWidth, int screenHeight) {
         if (guide == null) return;
         int color = ColorRGBA.ACCENT_PINK.toARGB();
         if (guide.isVertical()) {

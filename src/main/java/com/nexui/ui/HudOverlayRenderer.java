@@ -7,15 +7,15 @@ import com.nexui.model.LayoutProfile;
 import com.nexui.model.Rect2i;
 import com.nexui.model.UIComponent;
 import com.nexui.registry.ProfileRegistry;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.render.RenderTickCounter;
+import net.minecraft.client.DeltaTracker;
+import net.minecraft.client.gui.GuiGraphics;
 
 /**
  * Custom Client HUD Overlay Renderer Hook.
  */
 public class HudOverlayRenderer {
 
-    public static void onHudRender(DrawContext context, RenderTickCounter tickCounter) {
+    public static void onHudRender(GuiGraphics context, DeltaTracker tickCounter) {
         // Do not render HUD duplicate elements during active Design Mode
         if (DesignModeManager.getInstance().isDesignModeActive()) {
             return;
@@ -24,7 +24,7 @@ public class HudOverlayRenderer {
         LayoutProfile activeProfile = ProfileRegistry.getInstance().getActiveProfile();
         if (activeProfile == null) return;
 
-        float delta = tickCounter.getTickDelta(false);
+        float delta = tickCounter.getGameTimeDeltaPartialTick(false);
 
         for (UIComponent component : activeProfile.getComponents().values()) {
             if (!component.isVisible()) continue;
