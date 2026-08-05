@@ -3,6 +3,7 @@
   "package": "com.nexui.mixin",
   "compatibilityLevel": "JAVA_25",
   "client": [
+    "AbstractContainerScreenAccessor",
     "ScreenRelocatorMixin",
     "RecipeBookScreenRelocatorMixin",
     "ContainerScreenBackgroundBoxMixin",

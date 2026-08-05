@@ -4,7 +4,6 @@ import com.nexui.integration.ScreenRelocator;
 import com.nexui.model.Rect2i;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -17,11 +16,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
  */
 @Mixin(AbstractContainerScreen.class)
 public abstract class ScreenRelocatorMixin {
-    @Shadow
-    public int leftPos;
-
-    @Shadow
-    public int topPos;
 
     @Inject(method = "init", at = @At("TAIL"))
     private void nexui$offsetContainerScreen(CallbackInfo ci) {
@@ -29,7 +23,8 @@ public abstract class ScreenRelocatorMixin {
         if (target == null) {
             return;
         }
-        leftPos = target.x();
-        topPos = target.y();
+        AbstractContainerScreenAccessor accessor = (AbstractContainerScreenAccessor) (Object) this;
+        accessor.nexui$setLeftPos(target.x());
+        accessor.nexui$setTopPos(target.y());
     }
 }
