@@ -1,37 +1,44 @@
 package com.nexui.ui;
 
-import com.nexui.api.NexUIWidget;
+import com.nexui.engine.AnimationController;
+import com.nexui.engine.DesignModeManager;
 import com.nexui.engine.RenderPipeline;
+import com.nexui.model.ColorRGBA;
 import com.nexui.model.LayoutProfile;
 import com.nexui.model.Rect2i;
-import com.nexui.model.Theme;
 import com.nexui.model.UIComponent;
 import com.nexui.registry.ProfileRegistry;
-import com.nexui.registry.ThemeRegistry;
-import com.nexui.registry.WidgetRegistry;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.render.RenderTickCounter;
+import net.minecraft.client.DeltaTracker;
+import net.minecraft.client.gui.GuiGraphics;
 
 /**
- * Modern HUD Overlay renderer hook responsible for drawing custom themed UI elements.
+ * Custom Client HUD Overlay Renderer Hook.
  */
 public class HudOverlayRenderer {
 
-    public static void onHudRender(DrawContext context, RenderTickCounter tickCounter) {
+    public static void onHudRender(GuiGraphics context, DeltaTracker tickCounter) {
+        // Do not render HUD duplicate elements during active Design Mode
+        if (DesignModeManager.getInstance().isDesignModeActive()) {
+            return;
+        }
+
         LayoutProfile activeProfile = ProfileRegistry.getInstance().getActiveProfile();
-        Theme activeTheme = ThemeRegistry.getInstance().getTheme(activeProfile.getThemeId());
+        if (activeProfile == null) return;
 
-        if (activeProfile == null || activeTheme == null) return;
+        float delta = tickCounter.getGameTimeDeltaPartialTick(false);
 
-        // Render third-party and customized registered HUD components
         for (UIComponent component : activeProfile.getComponents().values()) {
             if (!component.isVisible()) continue;
 
-            NexUIWidget customWidget = WidgetRegistry.getInstance().getCustomWidget(component.getId());
-            if (customWidget != null && customWidget.isAvailable()) {
-                Rect2i b = component.getCurrentBounds();
-                customWidget.render(b.x(), b.y(), b.width(), b.height(), component.getStyle(), tickCounter.getTickDelta(true));
-            }
+            Rect2i currentBounds = component.getCurrentBounds();
+            // Calculate animated properties
+            Rect2i animatedBounds = AnimationController.getAnimatedBounds(component, currentBounds, delta);
+
+            // Render component custom background glass & border style
+            RenderPipeline.renderStyledPanel(context, animatedBounds, component.getStyle());
+
+            // Label watermark
+            context.drawString(context.getClient().font, component.getName(), animatedBounds.x() + 4, animatedBounds.y() + 4, ColorRGBA.WHITE.toARGB(), false);
         }
     }
 }

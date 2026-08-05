@@ -3,84 +3,57 @@ package com.nexui.engine;
 import com.nexui.model.ColorRGBA;
 import com.nexui.model.ComponentStyle;
 import com.nexui.model.Rect2i;
-import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.GuiGraphics;
 
 /**
- * Modern rendering pipeline for NexUI (Rounded Rectangles, Soft Shadows, Glows, Glassmorphism).
+ * Modern UI Rendering Pipeline supporting glassmorphism, smooth borders, outlines, and alignment guides.
  */
 public class RenderPipeline {
 
-    public static void renderStyledPanel(DrawContext context, Rect2i bounds, ComponentStyle style) {
+    public static void renderStyledPanel(GuiGraphics context, Rect2i bounds, ComponentStyle style) {
         if (bounds == null || style == null) return;
+
         int x = bounds.x();
         int y = bounds.y();
         int w = bounds.width();
         int h = bounds.height();
 
-        // Render Drop Shadow if radius > 0
-        if (style.getShadowRadius() > 0) {
-            ColorRGBA shadow = style.getShadowColor();
-            int offset = style.getShadowRadius() / 2;
-            context.fill(x - offset, y - offset, x + w + offset, y + h + offset, shadow.toARGB());
-        }
+        // 1. Render Background Glass Box
+        context.fill(x, y, x + w, y + h, style.getBackgroundColor().toARGB());
 
-        // Render Outer Glow if radius > 0
-        if (style.getGlowRadius() > 0) {
-            ColorRGBA glow = style.getGlowColor();
-            int glowOffset = style.getGlowRadius();
-            context.fill(x - glowOffset, y - glowOffset, x + w + glowOffset, y + h + glowOffset, glow.toARGB());
-        }
-
-        // Render Glass / Main Background Panel
-        ColorRGBA bg = style.getBackgroundColor();
-        context.fill(x, y, x + w, y + h, bg.toARGB());
-
-        // Render Border
+        // 2. Render Border
         if (style.getBorderWidth() > 0) {
-            ColorRGBA border = style.getBorderColor();
             int bw = style.getBorderWidth();
-            context.fill(x, y, x + w, y + bw, border.toARGB());                             // Top
-            context.fill(x, y + h - bw, x + w, y + h, border.toARGB());                     // Bottom
-            context.fill(x, y + bw, x + bw, y + h - bw, border.toARGB());                 // Left
-            context.fill(x + w - bw, y + bw, x + w, y + h - bw, border.toARGB());         // Right
+            int bc = style.getBorderColor().toARGB();
+            context.fill(x, y, x + w, y + bw, bc); // Top
+            context.fill(x, y + h - bw, x + w, y + h, bc); // Bottom
+            context.fill(x, y, x + bw, y + h, bc); // Left
+            context.fill(x + w - bw, y, x + w, y + h, bc); // Right
         }
     }
 
-    public static void renderSelectionOutline(DrawContext context, Rect2i bounds, boolean isPrimary) {
+    public static void renderSelectionOutline(GuiGraphics context, Rect2i bounds, boolean isPrimary) {
         if (bounds == null) return;
-        int x = bounds.x();
-        int y = bounds.y();
-        int w = bounds.width();
-        int h = bounds.height();
+        int color = isPrimary ? ColorRGBA.ACCENT_CYAN.toARGB() : ColorRGBA.ACCENT_BLUE.toARGB();
+        int bw = 2;
+        int x = bounds.x() - bw;
+        int y = bounds.y() - bw;
+        int w = bounds.width() + (bw * 2);
+        int h = bounds.height() + (bw * 2);
 
-        ColorRGBA outlineColor = isPrimary ? ColorRGBA.ACCENT_BLUE : ColorRGBA.ACCENT_CYAN;
-        int argb = outlineColor.toARGB();
-
-        // Dashed / Solid Selection Box
-        context.fill(x - 2, y - 2, x + w + 2, y - 1, argb);
-        context.fill(x - 2, y + h + 1, x + w + 2, y + h + 2, argb);
-        context.fill(x - 2, y - 1, x - 1, y + h + 1, argb);
-        context.fill(x + w + 1, y - 1, x + w + 2, y + h + 1, argb);
-
-        // Corner Resize Handles (Figma style)
-        int handleSize = 6;
-        renderHandle(context, x - handleSize / 2, y - handleSize / 2, handleSize, argb);
-        renderHandle(context, x + w - handleSize / 2, y - handleSize / 2, handleSize, argb);
-        renderHandle(context, x - handleSize / 2, y + h - handleSize / 2, handleSize, argb);
-        renderHandle(context, x + w - handleSize / 2, y + h - handleSize / 2, handleSize, argb);
+        context.fill(x, y, x + w, y + bw, color);
+        context.fill(x, y + h - bw, x + w, y + h, color);
+        context.fill(x, y, x + bw, y + h, color);
+        context.fill(x + w - bw, y, x + w, y + h, color);
     }
 
-    private static void renderHandle(DrawContext context, int x, int y, int size, int argb) {
-        context.fill(x, y, x + size, y + size, ColorRGBA.WHITE.toARGB());
-        context.fill(x + 1, y + 1, x + size - 1, y + size - 1, argb);
-    }
-
-    public static void renderAlignmentGuide(DrawContext context, AlignmentGuideEngine.AlignmentGuide guide, int width, int height) {
-        int color = ColorRGBA.ACCENT_CYAN.toARGB();
-        if (guide.isVertical()) {
-            context.fill(guide.position(), 0, guide.position() + 1, height, color);
+    public static void renderAlignmentGuide(GuiGraphics context, AlignmentGuideEngine.AlignmentGuide guide, int screenWidth, int screenHeight) {
+        if (guide == null) return;
+        int color = ColorRGBA.ACCENT_PINK.toARGB();
+        if (guide.isVertical) {
+            context.fill(guide.position, 0, guide.position + 1, screenHeight, color);
         } else {
-            context.fill(0, guide.position(), width, guide.position() + 1, color);
+            context.fill(0, guide.position, screenWidth, guide.position + 1, color);
         }
     }
 }
