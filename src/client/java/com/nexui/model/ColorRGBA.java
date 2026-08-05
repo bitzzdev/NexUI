@@ -9,6 +9,7 @@ public record ColorRGBA(int red, int green, int blue, int alpha) {
     public static final ColorRGBA TRANSPARENT = new ColorRGBA(0, 0, 0, 0);
     public static final ColorRGBA ACCENT_BLUE = new ColorRGBA(99, 102, 241, 255); // Vibrant Indigo
     public static final ColorRGBA ACCENT_CYAN = new ColorRGBA(6, 182, 212, 255);  // Neon Cyan
+    public static final ColorRGBA ACCENT_PINK = new ColorRGBA(236, 72, 153, 255); // Neon Pink
     public static final ColorRGBA DARK_BG = new ColorRGBA(18, 18, 24, 220);       // Sleek Dark Glass
 
     public ColorRGBA {
