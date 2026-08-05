@@ -9,6 +9,7 @@ import com.nexui.registry.ProfileRegistry;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -77,6 +78,20 @@ public class DesignModeManager {
             }
         }
         return result;
+    }
+
+    public void beginSelectedComponentDrag() {
+        undoRedoManager.pushState(ProfileRegistry.getInstance().getActiveProfile());
+    }
+
+    public void moveSelectedComponentsTo(Map<String, Rect2i> targetBounds) {
+        LayoutProfile profile = ProfileRegistry.getInstance().getActiveProfile();
+        for (Map.Entry<String, Rect2i> entry : targetBounds.entrySet()) {
+            UIComponent comp = profile.getComponent(entry.getKey());
+            if (comp != null && !comp.isLocked()) {
+                comp.setCurrentBounds(entry.getValue());
+            }
+        }
     }
 
     public void moveSelectedComponents(int dx, int dy) {

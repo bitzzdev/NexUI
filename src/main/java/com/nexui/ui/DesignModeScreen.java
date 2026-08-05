@@ -2,6 +2,7 @@ package com.nexui.ui;
 
 import com.nexui.engine.AlignmentGuideEngine;
 import com.nexui.engine.DesignModeManager;
+import com.nexui.engine.GridSnapEngine;
 import com.nexui.engine.RenderPipeline;
 import com.nexui.model.ColorRGBA;
 import com.nexui.model.ComponentStyle;
@@ -17,7 +18,9 @@ import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Interactive Figma-style Design Mode screen allowing real-time UI element drag, drop, resize, styling, alignment guides, and toolbar controls.
@@ -25,6 +28,10 @@ import java.util.List;
 public class DesignModeScreen extends Screen {
     private final DesignModeManager manager = DesignModeManager.getInstance();
     private boolean isDragging = false;
+    private boolean dragOriginRecorded = false;
+    private double dragStartMouseX;
+    private double dragStartMouseY;
+    private final Map<String, Rect2i> dragStartBounds = new HashMap<>();
     private List<AlignmentGuideEngine.AlignmentGuide> currentGuides = List.of();
 
     public DesignModeScreen() {
@@ -51,16 +58,17 @@ public class DesignModeScreen extends Screen {
             renderGrid(context, activeProfile.getGridSize());
         }
 
-        // Render all UI components (hidden ones dimmed so every relocator stays visible)
+        // Render all visible UI components (hidden ones are not shown on the canvas)
         for (UIComponent component : activeProfile.getComponents().values()) {
+            if (!component.isVisible()) continue;
+
             Rect2i bounds = component.getCurrentBounds();
 
             // Render component background panel
             RenderPipeline.renderStyledPanel(context, bounds, component.getStyle());
 
             // Label for editing identification
-            String label = component.isVisible() ? component.getName() : component.getName() + " (hidden)";
-            context.text(this.font, label, bounds.x() + 4, bounds.y() + 4, component.isVisible() ? ColorRGBA.WHITE.toARGB() : 0x66FFFFFF, false);
+            context.text(this.font, component.getName(), bounds.x() + 4, bounds.y() + 4, ColorRGBA.WHITE.toARGB(), false);
         }
 
         // Render Selection Outlines
@@ -157,19 +165,42 @@ public class DesignModeScreen extends Screen {
     @Override
     public boolean mouseDragged(MouseButtonEvent event, double deltaX, double deltaY) {
         if (isDragging && manager.getPrimarySelectedComponent() != null) {
-            int dx = (int) deltaX;
-            int dy = (int) deltaY;
+            if (!dragOriginRecorded) {
+                dragOriginRecorded = true;
+                dragStartMouseX = event.x();
+                dragStartMouseY = event.y();
+                dragStartBounds.clear();
+                for (UIComponent comp : manager.getSelectedComponents()) {
+                    dragStartBounds.put(comp.getId(), comp.getCurrentBounds());
+                }
+                manager.beginSelectedComponentDrag();
+            }
 
-            manager.moveSelectedComponents(dx, dy);
+            LayoutProfile activeProfile = ProfileRegistry.getInstance().getActiveProfile();
+            int offsetX = (int) (event.x() - dragStartMouseX);
+            int offsetY = (int) (event.y() - dragStartMouseY);
+
+            Map<String, Rect2i> targets = new HashMap<>();
+            for (UIComponent comp : manager.getSelectedComponents()) {
+                if (comp.isLocked()) continue;
+                Rect2i start = dragStartBounds.get(comp.getId());
+                if (start == null) continue;
+                int tx = start.x() + offsetX;
+                int ty = start.y() + offsetY;
+                if (activeProfile.isGridSnapEnabled()) {
+                    tx = GridSnapEngine.snapValue(tx, activeProfile.getGridSize());
+                    ty = GridSnapEngine.snapValue(ty, activeProfile.getGridSize());
+                }
+                targets.put(comp.getId(), new Rect2i(tx, ty, start.width(), start.height()));
+            }
+            manager.moveSelectedComponentsTo(targets);
 
             // Compute smart alignment guides
             UIComponent primary = manager.getPrimarySelectedComponent();
-            LayoutProfile activeProfile = ProfileRegistry.getInstance().getActiveProfile();
             if (activeProfile.isSmartGuidesEnabled() && primary != null) {
-                AlignmentGuideEngine.AlignmentResult result = AlignmentGuideEngine.computeGuides(
+                currentGuides = AlignmentGuideEngine.computeGuides(
                     primary, activeProfile.getComponents().values(), width, height
-                );
-                currentGuides = result.guides;
+                ).guides;
             }
             return true;
         }
@@ -179,6 +210,7 @@ public class DesignModeScreen extends Screen {
     @Override
     public boolean mouseReleased(MouseButtonEvent event) {
         isDragging = false;
+        dragOriginRecorded = false;
         currentGuides = List.of();
         return super.mouseReleased(event);
     }
