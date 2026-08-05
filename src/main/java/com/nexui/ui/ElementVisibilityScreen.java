@@ -127,12 +127,15 @@ public class ElementVisibilityScreen extends Screen {
             groupY += ROW_STEP;
         }
 
-        // Individual component rows (scrollable)
+        // Individual component rows (scrollable). Clipped to the area below the group
+        // rows so scrolled rows never draw on top of the groups.
+        context.enableScissor(PANEL_X + 2, groupY + 4, PANEL_X + panelWidth() - 2, PANEL_Y + panelHeight() - 2);
         for (int i = 0; i < components.size(); i++) {
             int ry = groupY + 4 + i * ROW_STEP - scrollOffset;
             if (ry + ROW_HEIGHT < PANEL_Y || ry > PANEL_Y + panelHeight()) continue;
             renderRow(context, components.get(i), new Rect2i(PANEL_X + 6, ry, panelWidth() - 12, ROW_HEIGHT));
         }
+        context.disableScissor();
         context.disableScissor();
 
         // Footer buttons
