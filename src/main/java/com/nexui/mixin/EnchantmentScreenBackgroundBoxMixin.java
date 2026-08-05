@@ -5,6 +5,7 @@ import com.nexui.model.Rect2i;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.EnchantmentScreen;
+import net.minecraft.client.input.MouseButtonEvent;
 import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -39,6 +40,30 @@ public abstract class EnchantmentScreenBackgroundBoxMixin {
         at = @At(value = "FIELD", target = "Lnet/minecraft/client/gui/screens/inventory/EnchantmentScreen;height:I", opcode = Opcodes.GETFIELD)
     )
     private int nexui$redirectBoxY(EnchantmentScreen instance, GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
+        Rect2i target = ScreenRelocator.getRelocationTarget(instance);
+        if (target == null) {
+            return instance.height;
+        }
+        return target.y() * 2 + ((AbstractContainerScreenAccessor) instance).nexui$imageHeight();
+    }
+
+    @Redirect(
+        method = "mouseClicked",
+        at = @At(value = "FIELD", target = "Lnet/minecraft/client/gui/screens/inventory/EnchantmentScreen;width:I", opcode = Opcodes.GETFIELD)
+    )
+    private int nexui$redirectClickX(EnchantmentScreen instance, MouseButtonEvent event, boolean doubleClicked) {
+        Rect2i target = ScreenRelocator.getRelocationTarget(instance);
+        if (target == null) {
+            return instance.width;
+        }
+        return target.x() * 2 + ((AbstractContainerScreenAccessor) instance).nexui$imageWidth();
+    }
+
+    @Redirect(
+        method = "mouseClicked",
+        at = @At(value = "FIELD", target = "Lnet/minecraft/client/gui/screens/inventory/EnchantmentScreen;height:I", opcode = Opcodes.GETFIELD)
+    )
+    private int nexui$redirectClickY(EnchantmentScreen instance, MouseButtonEvent event, boolean doubleClicked) {
         Rect2i target = ScreenRelocator.getRelocationTarget(instance);
         if (target == null) {
             return instance.height;
