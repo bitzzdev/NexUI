@@ -46,10 +46,8 @@ public class WidgetRegistry {
         registerVanilla("scoreboard", "Scoreboard Sidebar", WidgetCategory.ACTION_BAR, new Rect2i(600, 150, 150, 200));
         registerVanilla("titles", "Title & Subtitle", WidgetCategory.ACTION_BAR, new Rect2i(200, 120, 360, 60));
         registerVanilla("boss_bars", "Boss Health Bars", WidgetCategory.NOTIFICATIONS, new Rect2i(200, 10, 360, 40));
-        registerVanilla("toast_notifications", "Toast Notifications", WidgetCategory.NOTIFICATIONS, new Rect2i(580, 10, 160, 60));
 
         // Containers & Screens
-        registerVanilla("recipe_book", "Recipe Book Overlay", WidgetCategory.CONTAINER_GUI, new Rect2i(40, 100, 160, 220));
         registerVanilla("inventory_gui", "Inventory Screen", WidgetCategory.CONTAINER_GUI, new Rect2i(240, 140, 280, 220));
         registerVanilla("chest_gui", "Chest Screen", WidgetCategory.CONTAINER_GUI, new Rect2i(240, 100, 280, 260));
         registerVanilla("furnace_gui", "Furnace Screen", WidgetCategory.CONTAINER_GUI, new Rect2i(240, 140, 280, 220));

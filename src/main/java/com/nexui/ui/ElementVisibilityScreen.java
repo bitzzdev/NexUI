@@ -18,8 +18,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Screen for toggling the visibility of every UI element placement in the active
- * profile. Lets players hide overlapping elements so the design canvas is less crowded.
+ * Screen for toggling the relocator visibility of every UI element placement in the
+ * active profile. Hiding only removes the relocator box from the design canvas;
+ * it never hides the real in-game element.
  */
 public class ElementVisibilityScreen extends Screen {
     private static final int PANEL_X = 40;
@@ -74,7 +75,7 @@ public class ElementVisibilityScreen extends Screen {
         }
 
         context.text(this.font, "NexUI Element Visibility", PANEL_X, 40, ColorRGBA.ACCENT_CYAN.toARGB(), false);
-        context.text(this.font, "Click a row to show or hide that UI element. Hide overlapping elements to declutter your layout.", PANEL_X, 56, 0xAAFFFFFF, false);
+        context.text(this.font, "Click a row to show or hide that element's relocator on the design canvas. The real in-game UI is never hidden.", PANEL_X, 56, 0xAAFFFFFF, false);
         String counter = visible + " / " + components.size() + " visible";
         context.text(this.font, counter, width - PANEL_X - this.font.width(counter), 40, 0xAAFFFFFF, false);
 

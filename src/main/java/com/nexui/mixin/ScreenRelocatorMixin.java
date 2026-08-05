@@ -15,8 +15,10 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /**
- * Offsets the top-left position of container screens (inventory, chest, furnaces, ...)
- * by the delta the matching NexUI component has been moved from its default bounds.
+ * Repositions container screens (inventory, chest, furnaces, ...) to the position
+ * the matching NexUI component was moved to. Position is applied based only on the
+ * moved bounds; the visibility flag does not affect the real screen (it only hides
+ * the relocator box on the design canvas).
  */
 @Mixin(AbstractContainerScreen.class)
 public abstract class ScreenRelocatorMixin {
@@ -38,11 +40,7 @@ public abstract class ScreenRelocatorMixin {
 
         LayoutProfile profile = ProfileRegistry.getInstance().getActiveProfile();
         UIComponent component = profile == null ? null : profile.getComponent(componentId);
-        if (component == null || !component.isVisible()) {
-            if (!logged) {
-                logged = true;
-                LOGGER.info("NexUI: screen '{}' not relocated (component null or hidden)", componentId);
-            }
+        if (component == null) {
             return;
         }
 

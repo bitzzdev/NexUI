@@ -12,9 +12,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Wraps a vanilla HUD element and repositions (and optionally hides) it based on
- * the matching NexUI component. Only the delta between the component's current and
- * default bounds is applied, so untouched components render exactly like vanilla.
+ * Wraps a vanilla HUD element and repositions it based on the matching NexUI
+ * component. Only the delta between the component's current and default bounds is
+ * applied, so untouched components render exactly like vanilla. The component's
+ * visibility flag is intentionally NOT applied here: hiding only affects the
+ * relocator box on the design canvas, never the real in-game element.
  */
 public class RelocatedHudElement implements HudElement {
     private static final Logger LOGGER = LoggerFactory.getLogger("NexUI-HUD");
@@ -33,15 +35,6 @@ public class RelocatedHudElement implements HudElement {
         LayoutProfile profile = ProfileRegistry.getInstance().getActiveProfile();
         UIComponent component = profile == null ? null : profile.getComponent(componentId);
 
-        // Hiding a component now hides the real vanilla element.
-        if (component != null && !component.isVisible()) {
-            if (!logged) {
-                logged = true;
-                LOGGER.info("NexUI: hiding vanilla element for component '{}' (visible=false)", componentId);
-            }
-            return;
-        }
-
         int dx = 0;
         int dy = 0;
         if (component != null) {
@@ -52,10 +45,6 @@ public class RelocatedHudElement implements HudElement {
         }
 
         if (dx == 0 && dy == 0) {
-            if (!logged) {
-                logged = true;
-                LOGGER.info("NexUI: vanilla element for component '{}' rendering at default (delta 0, visible={})", componentId, component == null ? "?" : component.isVisible());
-            }
             delegate.extractRenderState(context, deltaTracker);
             return;
         }
