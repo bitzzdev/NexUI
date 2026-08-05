@@ -8,34 +8,40 @@ import com.nexui.ui.HudOverlayRenderer;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
-import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
-import net.minecraft.client.option.KeyBinding;
+import net.fabricmc.fabric.api.client.rendering.v1.HudElementRegistry;
+import net.fabricmc.fabric.api.client.rendering.v1.VanillaHudElements;
+import net.minecraft.client.KeyMapping;
+import net.minecraft.resources.ResourceLocation;
 import org.lwjgl.glfw.GLFW;
 
 public class NexUIClient implements ClientModInitializer {
     public static final String MOD_ID = "nexui";
-    private static KeyBinding openDesignModeKey;
+    private static KeyMapping openDesignModeKey;
 
     @Override
     public void onInitializeClient() {
         ConfigManager.getInstance().loadConfig();
-        ThemeRegistry.getInstance().registerDefaultThemes();
-        ProfileRegistry.getInstance().registerDefaultProfiles();
+        ThemeRegistry.getInstance();
+        ProfileRegistry.getInstance();
 
-        openDesignModeKey = KeyBindingHelper.registerKeyBinding(new KeyBinding(
+        openDesignModeKey = KeyBindingHelper.registerKeyBinding(new KeyMapping(
             "key.nexui.open_design_mode",
             GLFW.GLFW_KEY_RIGHT_SHIFT,
             "category.nexui.general"
         ));
 
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
-            while (openDesignModeKey.wasPressed()) {
-                if (client.currentScreen == null) {
+            while (openDesignModeKey.consumeClick()) {
+                if (client.screen == null) {
                     client.setScreen(new DesignModeScreen());
                 }
             }
         });
 
-        HudRenderCallback.EVENT.register(HudOverlayRenderer::onHudRender);
+        HudElementRegistry.attachElementAfter(
+            VanillaHudElements.MISC_OVERLAYS,
+            ResourceLocation.fromNamespaceAndPath(MOD_ID, "hud_overlay"),
+            HudOverlayRenderer::onHudRender
+        );
     }
 }
