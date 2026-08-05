@@ -1,17 +1,14 @@
 package com.nexui.integration;
 
 import com.nexui.ui.ThemeEditorScreen;
-import com.terraformersmc.modmenu.api.ConfigScreenFactory;
-import com.terraformersmc.modmenu.api.ModMenuApi;
 import net.minecraft.client.gui.screens.Screen;
 
 /**
- * ModMenu API Integration providing native settings screen entrypoint.
+ * Native configuration screen factory integration for NexUI.
  */
-public class ModMenuIntegration implements ModMenuApi {
+public class ModMenuIntegration {
 
-    @Override
-    public ConfigScreenFactory<Screen> getModConfigScreenFactory() {
-        return ThemeEditorScreen::new;
+    public static Screen createConfigScreen(Screen parent) {
+        return new ThemeEditorScreen();
     }
 }

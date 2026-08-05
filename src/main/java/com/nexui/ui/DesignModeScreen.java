@@ -123,7 +123,7 @@ public class DesignModeScreen extends Screen {
         }
 
         if (clickedComp != null) {
-            boolean isShiftDown = Screen.hasShiftDown();
+            boolean isShiftDown = hasShiftDown();
             manager.selectComponent(clickedComp.getId(), isShiftDown);
             isDragging = true;
             dragStartX = mx;
@@ -176,19 +176,19 @@ public class DesignModeScreen extends Screen {
             manager.toggleLockSelected();
             return true;
         }
-        if (Screen.hasControlDown() && keyCode == 90) { // Ctrl+Z - Undo
+        if (hasControlDown() && keyCode == 90) { // Ctrl+Z - Undo
             manager.undo();
             return true;
         }
-        if (Screen.hasControlDown() && keyCode == 89) { // Ctrl+Y - Redo
+        if (hasControlDown() && keyCode == 89) { // Ctrl+Y - Redo
             manager.redo();
             return true;
         }
-        if (Screen.hasControlDown() && keyCode == 67) { // Ctrl+C - Copy Style
+        if (hasControlDown() && keyCode == 67) { // Ctrl+C - Copy Style
             manager.copyStyle();
             return true;
         }
-        if (Screen.hasControlDown() && keyCode == 86) { // Ctrl+V - Paste Style
+        if (hasControlDown() && keyCode == 86) { // Ctrl+V - Paste Style
             manager.pasteStyle();
             return true;
         }

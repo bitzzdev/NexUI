@@ -1,11 +1,21 @@
 package com.nexui.engine;
 
 import com.nexui.model.AnimationType;
+import com.nexui.model.Rect2i;
+import com.nexui.model.UIComponent;
 
 /**
  * Frame-rate independent smooth animation interpolator.
  */
 public class AnimationController {
+
+    public static Rect2i getAnimatedBounds(UIComponent component, Rect2i baseBounds, float delta) {
+        if (component == null || baseBounds == null) return baseBounds;
+        float progress = interpolate(component.getStyle().getAnimationType(), delta);
+        int w = Math.round(baseBounds.width() * progress);
+        int h = Math.round(baseBounds.height() * progress);
+        return new Rect2i(baseBounds.x(), baseBounds.y(), Math.max(1, w), Math.max(1, h));
+    }
 
     public static float interpolate(AnimationType type, float progress) {
         float t = Math.clamp(progress, 0f, 1f);
