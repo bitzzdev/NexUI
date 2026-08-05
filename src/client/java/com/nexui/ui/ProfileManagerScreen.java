@@ -6,9 +6,9 @@ import com.nexui.model.ComponentStyle;
 import com.nexui.model.LayoutProfile;
 import com.nexui.model.Rect2i;
 import com.nexui.registry.ProfileRegistry;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.text.Text;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.Component;
 
 import java.util.List;
 
@@ -18,11 +18,11 @@ import java.util.List;
 public class ProfileManagerScreen extends Screen {
 
     public ProfileManagerScreen() {
-        super(Text.literal("NexUI Profile Manager"));
+        super(Component.literal("NexUI Profile Manager"));
     }
 
     @Override
-    public void render(DrawContext context, int mouseX, int mouseY, float delta) {
+    public void render(GuiGraphics context, int mouseX, int mouseY, float delta) {
         super.render(context, mouseX, mouseY, delta);
 
         // Glass background panel
@@ -34,9 +34,9 @@ public class ProfileManagerScreen extends Screen {
         RenderPipeline.renderStyledPanel(context, new Rect2i(30, 30, width - 60, height - 60), bgStyle);
 
         // Header
-        if (client != null && client.textRenderer != null) {
-            context.drawText(client.textRenderer, "NexUI Interface Layout Profiles", 50, 48, ColorRGBA.ACCENT_BLUE.toARGB(), false);
-            context.drawText(client.textRenderer, "Switch profiles instantly for different playstyles or export/import JSON presets.", 50, 64, 0xAAFFFFFF, false);
+        if (this.font != null) {
+            context.drawString(this.font, "NexUI Interface Layout Profiles", 50, 48, ColorRGBA.ACCENT_BLUE.toARGB(), false);
+            context.drawString(this.font, "Switch profiles instantly for different playstyles or export/import JSON presets.", 50, 64, 0xAAFFFFFF, false);
         }
 
         // Render Profiles List
@@ -62,9 +62,9 @@ public class ProfileManagerScreen extends Screen {
             Rect2i bounds = new Rect2i(startX, y, cardW, cardH);
             RenderPipeline.renderStyledPanel(context, bounds, cardStyle);
 
-            if (client != null && client.textRenderer != null) {
-                context.drawText(client.textRenderer, profile.getName() + (isActive ? " [ACTIVE]" : ""), startX + 16, y + 10, isActive ? ColorRGBA.ACCENT_CYAN.toARGB() : ColorRGBA.WHITE.toARGB(), false);
-                context.drawText(client.textRenderer, profile.getDescription(), startX + 16, y + 26, 0xAAFFFFFF, false);
+            if (this.font != null) {
+                context.drawString(this.font, profile.getName() + (isActive ? " [ACTIVE]" : ""), startX + 16, y + 10, isActive ? ColorRGBA.ACCENT_CYAN.toARGB() : ColorRGBA.WHITE.toARGB(), false);
+                context.drawString(this.font, profile.getDescription(), startX + 16, y + 26, 0xAAFFFFFF, false);
             }
         }
     }
@@ -95,7 +95,7 @@ public class ProfileManagerScreen extends Screen {
     }
 
     @Override
-    public boolean shouldPause() {
+    public boolean isPauseScreen() {
         return false;
     }
 }

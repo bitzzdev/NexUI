@@ -5,7 +5,7 @@ import com.nexui.model.ColorRGBA;
 import com.nexui.model.ComponentStyle;
 import com.nexui.model.Rect2i;
 import com.nexui.model.UIComponent;
-import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.GuiGraphics;
 
 /**
  * Figma-inspired right sidebar property inspector panel.
@@ -13,7 +13,7 @@ import net.minecraft.client.gui.DrawContext;
 public class PropertyInspectorWidget {
     private static final int PANEL_WIDTH = 220;
 
-    public static void renderInspector(DrawContext context, UIComponent component, int screenWidth, int screenHeight) {
+    public static void renderInspector(GuiGraphics context, UIComponent component, int screenWidth, int screenHeight) {
         if (component == null) return;
         int x = screenWidth - PANEL_WIDTH - 10;
         int y = 10;
