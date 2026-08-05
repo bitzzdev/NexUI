@@ -50,10 +50,10 @@ public class RenderPipeline {
     public static void renderAlignmentGuide(GuiGraphics context, AlignmentGuideEngine.AlignmentGuide guide, int screenWidth, int screenHeight) {
         if (guide == null) return;
         int color = ColorRGBA.ACCENT_PINK.toARGB();
-        if (guide.isVertical) {
-            context.fill(guide.position, 0, guide.position + 1, screenHeight, color);
+        if (guide.isVertical()) {
+            context.fill(guide.position(), 0, guide.position() + 1, screenHeight, color);
         } else {
-            context.fill(0, guide.position, screenWidth, guide.position + 1, color);
+            context.fill(0, guide.position(), screenWidth, guide.position() + 1, color);
         }
     }
 }
