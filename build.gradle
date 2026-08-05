@@ -18,19 +18,6 @@ repositories {
 }
 
 loom {
-    splitEnvironmentSourceSets()
-}
-
-sourceSets {
-    client {
-        compileClasspath += main.compileClasspath + main.output
-        runtimeClasspath += main.runtimeClasspath + main.output
-    }
-}
-
-configurations {
-    clientCompileClasspath.extendsFrom compileClasspath
-    clientRuntimeClasspath.extendsFrom runtimeClasspath
 }
 
 dependencies {
