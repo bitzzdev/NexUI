@@ -75,23 +75,6 @@ public class ProfileRegistry {
         }
     }
 
-    /**
-     * Moves the active profile to the next/previous entry in registration order,
-     * wrapping around. Positive direction goes forward, negative backward.
-     */
-    public void cycleActiveProfile(int direction) {
-        List<String> ids = new ArrayList<>(profiles.keySet());
-        if (ids.isEmpty()) {
-            return;
-        }
-        int index = ids.indexOf(activeProfileId);
-        if (index < 0) {
-            index = 0;
-        }
-        int next = ((index + direction) % ids.size() + ids.size()) % ids.size();
-        this.activeProfileId = ids.get(next);
-    }
-
     public void registerProfile(LayoutProfile profile) {
         if (profile != null) {
             profiles.put(profile.getId(), profile);

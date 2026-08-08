@@ -131,24 +131,30 @@ public class DesignModeScreen extends Screen {
         return new Rect2i(width - 358, 17, 120, 38);
     }
 
-    private Rect2i profilesButtonBounds() {
-        return new Rect2i(width - 230, 17, 100, 38);
-    }
-
     private void renderToolbar(GuiGraphicsExtractor context) {
         ComponentStyle barStyle = new ComponentStyle();
         barStyle.setBackgroundColor(new ColorRGBA(18, 18, 24, 230));
         barStyle.setBorderColor(ColorRGBA.ACCENT_BLUE);
         barStyle.setBorderWidth(1);
 
-        Rect2i barBounds = new Rect2i(10, 10, width - 240, 52);
+        Rect2i barBounds = new Rect2i(10, 10, width - 220, 52);
         RenderPipeline.renderStyledPanel(context, barBounds, barStyle);
 
-        String title = "NexUI Design Mode Studio  |  Profile: " + ProfileRegistry.getInstance().getActiveProfile().getName();
+        String title = "NexUI Design Studio";
         context.text(this.font, title, 20, 20, ColorRGBA.ACCENT_CYAN.toARGB(), false);
 
-        String actions = "[ESC] Save & Exit  |  [L] Lock  |  [Ctrl+Z] Undo  |  [Ctrl+Y] Redo  |  [Ctrl+C] Copy Style  |  [[<] Cycle Profile";
-        context.text(this.font, actions, 20, 38, ColorRGBA.WHITE.toARGB(), false);
+        // Draw the actions hint truncated so it never runs underneath the
+        // toolbar buttons on the right.
+        String actions = "[ESC] Save & Exit  |  [L] Lock  |  [Ctrl+Z] Undo  |  [Ctrl+Y] Redo  |  [Ctrl+C] Copy Style";
+        int maxActionsWidth = visibilityButtonBounds().x() - 20 - 12;
+        String clipped = actions;
+        if (this.font.width(clipped) > maxActionsWidth) {
+            while (!clipped.isEmpty() && this.font.width(clipped + "…") > maxActionsWidth) {
+                clipped = clipped.substring(0, clipped.length() - 1);
+            }
+            clipped = clipped.trim() + "…";
+        }
+        context.text(this.font, clipped, 20, 38, ColorRGBA.WHITE.toARGB(), false);
 
         Rect2i buttonBounds = visibilityButtonBounds();
         ComponentStyle buttonStyle = new ComponentStyle();
@@ -157,10 +163,6 @@ public class DesignModeScreen extends Screen {
         buttonStyle.setBorderWidth(1);
         RenderPipeline.renderStyledPanel(context, buttonBounds, buttonStyle);
         context.text(this.font, "Visibility", buttonBounds.x() + (buttonBounds.width() - this.font.width("Visibility")) / 2, buttonBounds.y() + 14, ColorRGBA.WHITE.toARGB(), false);
-
-        Rect2i profilesBounds = profilesButtonBounds();
-        RenderPipeline.renderStyledPanel(context, profilesBounds, buttonStyle);
-        context.text(this.font, "Profiles", profilesBounds.x() + (profilesBounds.width() - this.font.width("Profiles")) / 2, profilesBounds.y() + 14, ColorRGBA.WHITE.toARGB(), false);
     }
 
     @Override
@@ -170,10 +172,6 @@ public class DesignModeScreen extends Screen {
 
         if (visibilityButtonBounds().contains(mx, my)) {
             Minecraft.getInstance().gui.setScreen(new ElementVisibilityScreen());
-            return true;
-        }
-        if (profilesButtonBounds().contains(mx, my)) {
-            Minecraft.getInstance().gui.setScreen(new ProfileManagerScreen());
             return true;
         }
 

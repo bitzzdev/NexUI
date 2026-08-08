@@ -12,14 +12,10 @@ import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.resources.Identifier;
 import org.lwjgl.glfw.GLFW;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class NexUIClient implements ClientModInitializer {
     public static final String MOD_ID = "nexui";
-    private static final Logger LOGGER = LoggerFactory.getLogger("NexUI");
     private static KeyMapping openDesignModeKey;
-    private static KeyMapping cycleProfileKey;
 
     @Override
     public void onInitializeClient() {
@@ -43,24 +39,12 @@ public class NexUIClient implements ClientModInitializer {
             nexuiCategory
         ));
 
-        cycleProfileKey = KeyMappingHelper.registerKeyMapping(new KeyMapping(
-            "key.nexui.cycle_profile",
-            InputConstants.Type.KEYSYM,
-            GLFW.GLFW_KEY_LEFT_BRACKET,
-            nexuiCategory
-        ));
-
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             while (openDesignModeKey.consumeClick()) {
                 // Screen management moved from Minecraft to Minecraft#gui (net.minecraft.client.gui.Gui)
                 if (client.gui.screen() == null) {
                     client.gui.setScreen(new DesignModeScreen());
                 }
-            }
-            while (cycleProfileKey.consumeClick()) {
-                ProfileRegistry.getInstance().cycleActiveProfile(1);
-                ConfigManager.getInstance().saveConfig();
-                LOGGER.info("NexUI: switched active profile to '{}'", ProfileRegistry.getInstance().getActiveProfile().getId());
             }
         });
 
