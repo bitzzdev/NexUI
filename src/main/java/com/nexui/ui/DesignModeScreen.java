@@ -45,6 +45,18 @@ public class DesignModeScreen extends Screen {
     protected void init() {
         super.init();
         manager.setDesignModeActive(true);
+        dSnapshot("profile");
+    }
+
+    private void dSnapshot(String tag) {
+        LayoutProfile active = ProfileRegistry.getInstance().getActiveProfile();
+        LOGGER.info("[{}] design canvas {}x{} profile='{}' components={}",
+            tag, width, height, active.getId(), active.getComponents().size());
+        for (UIComponent comp : active.getComponents().values()) {
+            LOGGER.info("  comp id='{}' name='{}' visible={} bounds={} category={}",
+                comp.getId(), comp.getName(), comp.isVisible(),
+                comp.getCurrentBounds(), comp.getCategory().name());
+        }
     }
 
     @Override
