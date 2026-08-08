@@ -10,7 +10,7 @@
 
 ---
 
-**NexUI** is a client-side Fabric mod that completely reimagines how you interact with Minecraft's interface. It works like a design tool (think Figma): you open a studio overlay over your live game and **drag the real UI elements** into new positions, hide relocators you don't need, switch complete layouts, and apply whole themes — in real time, with zero performance overhead and full multiplayer compatibility.
+**NexUI** is a client-side Fabric mod that completely reimagines how you interact with Minecraft's interface. It works like a design tool (think Figma): you open a studio overlay over your live game and **drag the real UI elements** into new positions, hide relocators you don't need, and apply whole themes — in real time, with zero performance overhead and full multiplayer compatibility.
 
 The key difference from other HUD mods: NexUI doesn't draw fake boxes and guess. It wraps the actual vanilla HUD layers and container screens, so when you move the *hotbar* box on the canvas, the **real hotbar moves in your world**.
 
@@ -23,7 +23,6 @@ The key difference from other HUD mods: NexUI doesn't draw fake boxes and guess.
 - [Quick Start](#quick-start)
 - [Keybinds & Controls](#keybinds--controls)
 - [Relocatable Elements](#relocatable-elements)
-- [Layout Profiles](#layout-profiles)
 - [Themes](#themes)
 - [Element Visibility](#element-visibility)
 - [Compatibility](#compatibility)
@@ -46,9 +45,6 @@ Press the **Design Mode key** (default `Right Shift`) to open an interactive stu
 - **Copy / Paste style** — copy the visual style of one element and apply it to others.
 - **Property inspector** — a right-hand panel with exact pixel coordinates, bounds, and every visual property of the selected element.
 - **Real-time preview** — the actual game keeps rendering behind the studio, and the changes apply to the real UI the moment you move a box.
-
-### 📐 Layout Profiles
-Profiles are named, switchable layouts. Save a setup for survival, one for PvP, one for streaming — and flip between them instantly.
 
 ### 🎭 Themes
 Themes are full visual style kits applied across the HUD. The built-in presets include Vanilla, Minimalist, Modern Studio, AMOLED, Frosted Glass, RPG Fantasy, Synthwave Neon, Cyberpunk 2077, Competitive PvP, and Streamer Broadcast.
@@ -78,7 +74,7 @@ Requirements: a recent Minecraft release, a recent Java, Fabric Loader, and Fabr
 3. Click a relocator box to select it, drag it to a new spot — the **real** UI element moves with it.
 4. Press `Esc` to save and exit. The new placement persists immediately.
 5. Open the **Visibility** screen (toolbar button) to hide relocators you don't want on the canvas.
-6. Use the **Profile** and **Theme** screens to switch or save complete setups.
+6. Use the **Theme** screen to switch or save complete setups.
 
 ---
 
@@ -140,18 +136,12 @@ Every element below is a **relocator**: a box on the design canvas that is bound
 
 ---
 
-## Layout Profiles
+## Layout
 
-Profiles are stored independently of themes, so you can pair any profile with any theme.
+Layouts are fully manual: you own one active layout, and every edit you make in the Design Studio is saved to it and applied to the real UI immediately. There are no preset profiles or switching — drag elements where you want them, press `Esc` to save, and the placement persists.
 
-- **Survival Default** — the vanilla-centered layout.
-- **Competitive PvP** — compact HUD maximizing field of view.
-- **Architect & Building** — chat and hotbar cleared out of the build area.
-- **Streamer Broadcast** — HUD arranged away from a corner facecam.
-- **Speedrun Timer & Stats** — layout tuned for timer overlays.
-- **Accessibility High-Contrast** — large, high-visibility elements.
-
-Switch profiles at any time from the Profile Manager; your current edits are saved to the active profile automatically.
+- **Survival Default** — the vanilla-centered layout you start from.
+- Every element can be moved, locked, or given a copied style via the studio toolbar.
 
 ---
 
@@ -207,7 +197,7 @@ NexUIAPI.registerProvider(myProvider);
 NexUIAPI.registerTheme(new MyCustomTheme());
 ```
 
-Implement `NexUIWidget` to describe your widget (id, name, category, default bounds, render callback, availability) and `WidgetProvider` to provide several widgets at once. Registered widgets appear in the studio like any vanilla element and can be moved, themed, and included in profiles.
+Implement `NexUIWidget` to describe your widget (id, name, category, default bounds, render callback, availability) and `WidgetProvider` to provide several widgets at once. Registered widgets appear in the studio like any vanilla element and can be moved, themed, and included in your layout.
 
 The `com.nexui.api` package is the stable public surface; everything else (`model`, `registry`, `engine`, `config`, `ui`, `integration`, `mixin`) is internal and may change between versions.
 
