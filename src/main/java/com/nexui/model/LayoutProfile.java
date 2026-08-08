@@ -1,5 +1,7 @@
 package com.nexui.model;
 
+import com.nexui.integration.VanillaHudGeometry;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -42,6 +44,29 @@ public class LayoutProfile {
 
     public void addComponent(UIComponent component) {
         components.put(component.getId(), component);
+    }
+
+    /**
+     * Re-anchors every component onto the position where vanilla actually renders
+     * the element at the given scaled canvas size, preserving each component's
+     * user offset (current - default). This keeps relocator boxes overlaid on the
+     * real elements regardless of window resolution.
+     */
+    public void rebaseToWindow(int canvasWidth, int canvasHeight) {
+        for (UIComponent comp : components.values()) {
+            Rect2i def = comp.getDefaultBounds();
+            Rect2i cur = comp.getCurrentBounds();
+            int dx = cur.x() - def.x();
+            int dy = cur.y() - def.y();
+
+            Rect2i anchor = VanillaHudGeometry.anchorFor(comp.getId(), canvasWidth, canvasHeight);
+            if (anchor == null) {
+                anchor = VanillaHudGeometry.centeredAnchor(canvasWidth, canvasHeight, def);
+            }
+
+            comp.setDefaultBounds(anchor);
+            comp.setCurrentBounds(new Rect2i(anchor.x() + dx, anchor.y() + dy, anchor.width(), anchor.height()));
+        }
     }
 
     public UIComponent getComponent(String componentId) {

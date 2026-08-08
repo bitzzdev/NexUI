@@ -46,6 +46,12 @@ public class DesignModeScreen extends Screen {
     protected void init() {
         super.init();
         manager.setDesignModeActive(true);
+        // Re-anchor every component onto its actual vanilla render position for
+        // the current scaled window, preserving user offsets. Without this the
+        // relocator boxes sit at fixed hardcoded defaults that drift from the
+        // real elements (and can even end up below the canvas, e.g. the hotbar
+        // on short windows).
+        ProfileRegistry.getInstance().getActiveProfile().rebaseToWindow(width, height);
         dSnapshot("profile");
     }
 
