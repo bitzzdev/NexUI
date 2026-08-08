@@ -29,6 +29,7 @@ import java.util.Map;
  */
 public class DesignModeScreen extends Screen {
     private static final Logger LOGGER = LoggerFactory.getLogger("NexUI-Design");
+    private static final ComponentStyle RELOCATOR_BOX_STYLE = createRelocatorStyle();
     private final DesignModeManager manager = DesignModeManager.getInstance();
     private boolean isDragging = false;
     private boolean dragOriginRecorded = false;
@@ -46,6 +47,14 @@ public class DesignModeScreen extends Screen {
         super.init();
         manager.setDesignModeActive(true);
         dSnapshot("profile");
+    }
+
+    private static ComponentStyle createRelocatorStyle() {
+        ComponentStyle style = new ComponentStyle();
+        style.setBackgroundColor(new ColorRGBA(45, 52, 110, 170));
+        style.setBorderColor(ColorRGBA.ACCENT_CYAN);
+        style.setBorderWidth(2);
+        return style;
     }
 
     private void dSnapshot(String tag) {
@@ -79,8 +88,9 @@ public class DesignModeScreen extends Screen {
 
             Rect2i bounds = component.getCurrentBounds();
 
-            // Render component background panel
-            RenderPipeline.renderStyledPanel(context, bounds, component.getStyle());
+            // Render the relocator box with a fixed, clearly visible design style so
+            // every element on the canvas is easy to spot regardless of the scene.
+            RenderPipeline.renderStyledPanel(context, bounds, RELOCATOR_BOX_STYLE);
 
             // Label for editing identification
             context.text(this.font, component.getName(), bounds.x() + 4, bounds.y() + 4, ColorRGBA.WHITE.toARGB(), false);
@@ -121,6 +131,10 @@ public class DesignModeScreen extends Screen {
         return new Rect2i(width - 358, 17, 120, 38);
     }
 
+    private Rect2i profilesButtonBounds() {
+        return new Rect2i(width - 230, 17, 100, 38);
+    }
+
     private void renderToolbar(GuiGraphicsExtractor context) {
         ComponentStyle barStyle = new ComponentStyle();
         barStyle.setBackgroundColor(new ColorRGBA(18, 18, 24, 230));
@@ -133,7 +147,7 @@ public class DesignModeScreen extends Screen {
         String title = "NexUI Design Mode Studio  |  Profile: " + ProfileRegistry.getInstance().getActiveProfile().getName();
         context.text(this.font, title, 20, 20, ColorRGBA.ACCENT_CYAN.toARGB(), false);
 
-        String actions = "[ESC] Save & Exit  |  [L] Lock  |  [Ctrl+Z] Undo  |  [Ctrl+Y] Redo  |  [Ctrl+C] Copy Style";
+        String actions = "[ESC] Save & Exit  |  [L] Lock  |  [Ctrl+Z] Undo  |  [Ctrl+Y] Redo  |  [Ctrl+C] Copy Style  |  [[<] Cycle Profile";
         context.text(this.font, actions, 20, 38, ColorRGBA.WHITE.toARGB(), false);
 
         Rect2i buttonBounds = visibilityButtonBounds();
@@ -143,6 +157,10 @@ public class DesignModeScreen extends Screen {
         buttonStyle.setBorderWidth(1);
         RenderPipeline.renderStyledPanel(context, buttonBounds, buttonStyle);
         context.text(this.font, "Visibility", buttonBounds.x() + (buttonBounds.width() - this.font.width("Visibility")) / 2, buttonBounds.y() + 14, ColorRGBA.WHITE.toARGB(), false);
+
+        Rect2i profilesBounds = profilesButtonBounds();
+        RenderPipeline.renderStyledPanel(context, profilesBounds, buttonStyle);
+        context.text(this.font, "Profiles", profilesBounds.x() + (profilesBounds.width() - this.font.width("Profiles")) / 2, profilesBounds.y() + 14, ColorRGBA.WHITE.toARGB(), false);
     }
 
     @Override
@@ -152,6 +170,10 @@ public class DesignModeScreen extends Screen {
 
         if (visibilityButtonBounds().contains(mx, my)) {
             Minecraft.getInstance().gui.setScreen(new ElementVisibilityScreen());
+            return true;
+        }
+        if (profilesButtonBounds().contains(mx, my)) {
+            Minecraft.getInstance().gui.setScreen(new ProfileManagerScreen());
             return true;
         }
 

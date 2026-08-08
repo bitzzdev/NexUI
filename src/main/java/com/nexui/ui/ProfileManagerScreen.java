@@ -1,13 +1,16 @@
 package com.nexui.ui;
 
+import com.nexui.config.ConfigManager;
 import com.nexui.engine.RenderPipeline;
 import com.nexui.model.ColorRGBA;
 import com.nexui.model.ComponentStyle;
 import com.nexui.model.LayoutProfile;
 import com.nexui.model.Rect2i;
 import com.nexui.registry.ProfileRegistry;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
 
@@ -84,11 +87,21 @@ public class ProfileManagerScreen extends Screen {
             Rect2i bounds = new Rect2i(startX, y, cardW, cardH);
             if (bounds.contains(mx, my)) {
                 ProfileRegistry.getInstance().setActiveProfile(profile.getId());
+                ConfigManager.getInstance().saveConfig();
                 return true;
             }
         }
 
         return super.mouseClicked(event, doubleClicked);
+    }
+
+    @Override
+    public boolean keyPressed(KeyEvent event) {
+        if (event.isEscape()) {
+            Minecraft.getInstance().gui.setScreen(new DesignModeScreen());
+            return true;
+        }
+        return super.keyPressed(event);
     }
 
     @Override
