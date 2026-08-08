@@ -3,6 +3,7 @@ package com.nexui;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.nexui.config.ConfigManager;
 import com.nexui.integration.HudRelocator;
+import com.nexui.model.LayoutProfile;
 import com.nexui.registry.ProfileRegistry;
 import com.nexui.registry.ThemeRegistry;
 import com.nexui.ui.DesignModeScreen;
@@ -10,12 +11,14 @@ import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
 import net.minecraft.client.KeyMapping;
+import net.minecraft.client.Minecraft;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
-import org.lwjgl.glfw.GLFW;
 
 public class NexUIClient implements ClientModInitializer {
     public static final String MOD_ID = "nexui";
     private static KeyMapping openDesignModeKey;
+    private static KeyMapping resetLayoutKey;
 
     @Override
     public void onInitializeClient() {
@@ -35,7 +38,14 @@ public class NexUIClient implements ClientModInitializer {
         openDesignModeKey = KeyMappingHelper.registerKeyMapping(new KeyMapping(
             "key.nexui.open_design_mode",
             InputConstants.Type.KEYSYM,
-            GLFW.GLFW_KEY_RIGHT_SHIFT,
+            ConfigManager.getInstance().getConfig().getToggleHotkeyKeyCode(),
+            nexuiCategory
+        ));
+
+        resetLayoutKey = KeyMappingHelper.registerKeyMapping(new KeyMapping(
+            "key.nexui.reset_layout",
+            InputConstants.Type.KEYSYM,
+            ConfigManager.getInstance().getConfig().getResetHotkeyKeyCode(),
             nexuiCategory
         ));
 
@@ -46,10 +56,26 @@ public class NexUIClient implements ClientModInitializer {
                     client.gui.setScreen(new DesignModeScreen());
                 }
             }
+            while (resetLayoutKey.consumeClick()) {
+                resetLayoutToVanilla();
+            }
         });
 
         // Real HUD element relocation: replace each vanilla HUD element with a wrapper
         // that moves/hides it according to the active profile's component placement.
         HudRelocator.registerRelocations();
+    }
+
+    private void resetLayoutToVanilla() {
+        LayoutProfile profile = ProfileRegistry.getInstance().getActiveProfile();
+        if (profile == null) return;
+        Minecraft client = Minecraft.getInstance();
+        int w = client.getWindow().getGuiScaledWidth();
+        int h = client.getWindow().getGuiScaledHeight();
+        profile.resetToVanilla(w, h);
+        ConfigManager.getInstance().saveConfig();
+        if (client.player != null) {
+            client.player.sendSystemMessage(Component.literal("NexUI: layout reset to vanilla"));
+        }
     }
 }

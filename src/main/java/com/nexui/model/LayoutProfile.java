@@ -73,6 +73,22 @@ public class LayoutProfile {
         return components.get(componentId);
     }
 
+    /**
+     * Restores every component to its vanilla render position for the current
+     * scaled window, dropping all user offsets (also resets visibility/scale).
+     */
+    public void resetToVanilla(int canvasWidth, int canvasHeight) {
+        for (UIComponent comp : components.values()) {
+            Rect2i anchor = VanillaHudGeometry.anchorFor(comp.getId(), canvasWidth, canvasHeight);
+            if (anchor == null) {
+                anchor = VanillaHudGeometry.centeredAnchor(canvasWidth, canvasHeight, comp.getDefaultBounds());
+            }
+            comp.setDefaultBounds(anchor);
+            comp.setCurrentBounds(anchor);
+            comp.reset();
+        }
+    }
+
     public Map<String, UIComponent> getComponents() {
         return components;
     }

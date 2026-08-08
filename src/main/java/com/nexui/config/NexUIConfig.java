@@ -1,5 +1,8 @@
 package com.nexui.config;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 /**
  * Mod configuration parameters for NexUI studio.
  */
@@ -7,12 +10,14 @@ public class NexUIConfig {
     private String activeProfile = "survival";
     private String activeTheme = "modern";
     private int toggleHotkeyKeyCode = 344; // Right Shift
+    private int resetHotkeyKeyCode = 85; // U
     private boolean gridSnap = true;
     private int defaultGridSize = 8;
     private boolean smartGuides = true;
     private boolean animations = true;
     private boolean highContrastMode = false;
     private float globalScaleMultiplier = 1.0f;
+    private Map<String, ComponentState> layout = new LinkedHashMap<>();
 
     public String getActiveProfile() { return activeProfile; }
     public void setActiveProfile(String activeProfile) { this.activeProfile = activeProfile; }
@@ -22,6 +27,12 @@ public class NexUIConfig {
 
     public int getToggleHotkeyKeyCode() { return toggleHotkeyKeyCode; }
     public void setToggleHotkeyKeyCode(int toggleHotkeyKeyCode) { this.toggleHotkeyKeyCode = toggleHotkeyKeyCode; }
+
+    public int getResetHotkeyKeyCode() { return resetHotkeyKeyCode; }
+    public void setResetHotkeyKeyCode(int resetHotkeyKeyCode) { this.resetHotkeyKeyCode = resetHotkeyKeyCode; }
+
+    public Map<String, ComponentState> getLayout() { return layout; }
+    public void setLayout(Map<String, ComponentState> layout) { this.layout = layout; }
 
     public boolean isGridSnap() { return gridSnap; }
     public void setGridSnap(boolean gridSnap) { this.gridSnap = gridSnap; }

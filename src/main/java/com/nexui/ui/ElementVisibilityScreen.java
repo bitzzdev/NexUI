@@ -1,6 +1,7 @@
 package com.nexui.ui;
 
 import com.nexui.api.WidgetCategory;
+import com.nexui.config.ConfigManager;
 import com.nexui.engine.RenderPipeline;
 import com.nexui.model.ColorRGBA;
 import com.nexui.model.ComponentStyle;
@@ -237,6 +238,7 @@ public class ElementVisibilityScreen extends Screen {
                     UIComponent comp = row.component();
                     comp.setVisible(!comp.isVisible());
                 }
+                ConfigManager.getInstance().saveConfig();
                 return true;
             }
         }
@@ -276,6 +278,7 @@ public class ElementVisibilityScreen extends Screen {
         for (UIComponent comp : components) {
             comp.setVisible(visible);
         }
+        ConfigManager.getInstance().saveConfig();
     }
 
     private void closeToDesignMode() {

@@ -1,5 +1,6 @@
 package com.nexui.ui;
 
+import com.nexui.config.ConfigManager;
 import com.nexui.engine.AlignmentGuideEngine;
 import com.nexui.engine.DesignModeManager;
 import com.nexui.engine.GridSnapEngine;
@@ -261,6 +262,10 @@ public class DesignModeScreen extends Screen {
 
     @Override
     public boolean mouseReleased(MouseButtonEvent event) {
+        if (dragOriginRecorded) {
+            // Persist the layout whenever a drag ends so it survives restarts.
+            ConfigManager.getInstance().saveConfig();
+        }
         isDragging = false;
         dragOriginRecorded = false;
         currentGuides = List.of();
