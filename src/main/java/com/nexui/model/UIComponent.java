@@ -58,6 +58,7 @@ public class UIComponent {
     public void setCategory(WidgetCategory category) { this.category = category; }
 
     public Rect2i getDefaultBounds() { return defaultBounds; }
+    public void setDefaultBounds(Rect2i bounds) { this.defaultBounds = bounds; }
     public Rect2i getCurrentBounds() { return currentBounds; }
     public void setCurrentBounds(Rect2i bounds) { this.currentBounds = bounds; }
 
