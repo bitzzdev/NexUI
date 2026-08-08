@@ -10,12 +10,14 @@ import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
 import net.minecraft.client.KeyMapping;
-import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import org.lwjgl.glfw.GLFW;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class NexUIClient implements ClientModInitializer {
     public static final String MOD_ID = "nexui";
+    private static final Logger LOGGER = LoggerFactory.getLogger("NexUI");
     private static KeyMapping openDesignModeKey;
     private static KeyMapping cycleProfileKey;
 
@@ -58,12 +60,7 @@ public class NexUIClient implements ClientModInitializer {
             while (cycleProfileKey.consumeClick()) {
                 ProfileRegistry.getInstance().cycleActiveProfile(1);
                 ConfigManager.getInstance().saveConfig();
-                if (client.player != null) {
-                    String name = ProfileRegistry.getInstance().getActiveProfile().getName();
-                    client.player.displayClientMessage(
-                        Component.translatable("nexui.profile.changed", name), true
-                    );
-                }
+                LOGGER.info("NexUI: switched active profile to '{}'", ProfileRegistry.getInstance().getActiveProfile().getId());
             }
         });
 
